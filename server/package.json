@@ -5,8 +5,9 @@
   "main"         : "server.js",
   "author"       : "Adi",
   "dependencies" : {
-    "express"    : "latest",
-    "request"    : "latest",
-    "mysql"    : "latest"
+    "express"   : "latest",
+    "request"   : "latest",
+    "mysql"     : "latest",
+    "jsdoc"     : "latest"
   }
 }

@@ -7,12 +7,12 @@ var fetch = false;
 var array = [];
 // print process.argv
 process.argv.forEach(function (val, index, array) {
-  // console.log(index + ': ' + val);
   array = array;
 });
 
+/** Adding function stripSlashes to String to remove '\' from JSON Strings */
 String.prototype.stripSlashes = function(){
-    return this.replace(/\\(.)/mg, "$1");
+    return this.replace('\\"', '\"');
 };
 
 // check command line arguments
@@ -32,7 +32,6 @@ if (fetch) {
         json: true,
     }, function(error, response, body) {
             if(!error){
-
                 console.log(json);
             }
         }
@@ -44,6 +43,25 @@ fs.readFile('./gtrends.txt', 'utf8', function (err,data) {
   if (err) {
     return console.log(err);
   }
-  var json = data.split(/\((.+)?/)[1];
-  console.log(JSON.stringify(json.stripSlashes, null, 2));
+  var json_obj = JSONify(data);
+  var outfile = 'gtrends.json';
+  fs.writeFile('./'+outfile, JSON.stringify(json_obj, null, 2), function(err) {
+      if (err) throw err;
+      console.log("Saved JSON string to "+outfile);
+  });
 });
+
+
+/** Read HTTP response data and parse to JSON */
+function JSONify(data) {
+    var json_data = data.split(/\((.+)?/)[1]; // Remove leading "google.visualization.Query.setResponse("
+    json_data = json_data.slice(0, -2); // Remove last two characters (trailing ');') to correspond with leading
+    var date_function_regex = /new\sDate\((\d{4}),(\d{1,2}),(\d{1,2})\)/g; // key of date field is given as function call, must be change to JSON compatible date for successful parsing
+    json_str = json_data.replace(date_function_regex, function(match, yyyy, m, d) {
+        // Replace match with date
+        var date = new Date(yyyy, m, d);
+        return JSON.stringify(date);
+    });
+    var json_obj = JSON.parse(json_str);
+    return json_obj;
+}

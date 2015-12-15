@@ -1,0 +1,2 @@
+www.google.co.uk/trends/embed.js?hl=en-GB&q=transgender&date=now+7-d&cmpt=q&tz=Etc/GMT&tz=Etc/GMT&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330
+www.google.co.uk/trends/embed.js?hl=en-GB&q=transgender&date=today+12-m&cmpt=q&tz=Etc/GMT&tz=Etc/GMT&content=1&cid=TIMESERIES_GRAPH_0&export=5&w=500&h=330"

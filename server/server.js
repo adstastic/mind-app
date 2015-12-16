@@ -4,8 +4,10 @@ var mysql   = require('mysql');
 var express = require('express');
 // var jsdom	= require('jsdom');
 // var cheerio	= require('cheerio');
-var browser = require('zombie');
-var horseman = require('node-horseman');
+var sys = require('sys');
+var exec = require('child_process').exec;
+
+function puts(error, stdout, stderr) { sys.puts(stdout) };
 
 function check_command_line_arguments() {
 	var array = [];
@@ -76,6 +78,30 @@ function read(outfilename) {
   	});
 }
 
+function get_csvs(query, range) {
+	var q = encodeURIComponent(query.trim());
+	var date_dict = {
+    		'1y'    : "today+12-m",
+    		'3m'     : "today+3-m",
+    		'1m'     : "today+1-m",
+   		'1w'     : "now+7-d",
+    		'1d'     : "now+1-d",
+    		'4h'     : "now+4-H",
+    		'1h'     : "now+1-H",
+    		'at'     : ""
+	};	
+	var command = 'google-chrome';
+	if (range == "") {
+		for (var key in date_dict) {
+			var date = date_dict[key];
+			var csv_url = 'https://www.google.co.uk/trends/trendsReport?hl=en-US&q='+q+'&date='+date+'+&tz=Etc%2FGMT&content=1&export=1';
+			console.log(csv_url);
+			exec(command+' '+csv_url, puts);
+		}
+
+	}
+}
+
 // function jsdom_jsdom(html) {
 // 	jsdom.defaultDocumentFeatures = { 
 // 		  FetchExternalResources   : ['script', 'frame', 'iframe', 'link'],
@@ -108,18 +134,7 @@ function read(outfilename) {
 
 function main() {
 	check_command_line_arguments();
-
-	horseman = new Horseman({ phantomPath : "./node_modules/phantom/" );
-	horseman
-		.userAgent("Mozilla/5.0 (Windows NT 6.1; WOW64; rv:27.0) Gecko/20100101 Firefox/27.0")
-		.open('http://www.google.com')
-		.type('input[name="q"]', 'github')
-		.click("button:contains('Google Search')")
-		.keyboardEvent("keypress",16777221)
-		.waitForSelector("div.g")
-		.count("div.g")
-		.log() // prints out the number of results
-		.close();
+	get_csvs("mind charity");	
 }
 
 main();

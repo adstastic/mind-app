@@ -9,8 +9,6 @@
     "request"   : "latest",
     "mysql"     : "latest",
     "jsdoc"     : "latest",
-    "zombie"    : "latest",
-    "node-horseman" : "latest",
-    "phantom" : "latest"
+    "cookies.txt"    : "latest",
   }
 }

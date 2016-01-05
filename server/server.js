@@ -2,12 +2,11 @@ var fs      = require('fs');
 var request = require('request');
 var mysql   = require('mysql');
 var express = require('express');
-// var jsdom	= require('jsdom');
-// var cheerio	= require('cheerio');
 var sys = require('sys');
 var exec = require('child_process').exec;
 
-function puts(error, stdout, stderr) { sys.puts(stdout) };
+
+function puts(error, stdout, stderr) { console.log(stdout) };
 
 function check_command_line_arguments() {
 	var array = [];
@@ -54,7 +53,6 @@ function response_to_json(body, outfilename) {
   	});
 }
 
-
 /** Read HTTP response data and parse to JSON */
 function JSONify(data) {
     var json_data = data.split(/\((.+)?/)[1]; // Remove leading "google.visualization.Query.setResponse("
@@ -69,37 +67,45 @@ function JSONify(data) {
     return json_obj;
 }
 
-function read(outfilename) {
-	fs.readFile(outfilename+'.txt', 'utf8', function (err,data) {
+function read_file(outfilename) {
+	fs.readFile(outfilename, 'utf8', function (err,data) {
 	  	if (err) {
 	    	return console.log(err);
 	  	}
+        console.log("read data from "+outfilename);
   		return data;
   	});
 }
 
-function get_csvs(query, range) {
+var date_dict = {
+    '1y'    : "today+12-m",
+    '3m'     : "today+3-m",
+    '1m'     : "today+1-m",
+    '1w'     : "now+7-d",
+    '1d'     : "now+1-d",
+    '4h'     : "now+4-H",
+    '1h'     : "now+1-H",
+    'at'     : ""
+};  
+
+function get_csv_exec(query, date) {
 	var q = encodeURIComponent(query.trim());
-	var date_dict = {
-    		'1y'    : "today+12-m",
-    		'3m'     : "today+3-m",
-    		'1m'     : "today+1-m",
-   		'1w'     : "now+7-d",
-    		'1d'     : "now+1-d",
-    		'4h'     : "now+4-H",
-    		'1h'     : "now+1-H",
-    		'at'     : ""
-	};	
-	var command = 'google-chrome';
-	if (range == "") {
+    var filename = './data.csv';
+    console.log(filename);
+	var command = 'wget -x --load-cookies ./cookies.txt -O '+filename;
+	if (date == "") {
 		for (var key in date_dict) {
 			var date = date_dict[key];
-			var csv_url = 'https://www.google.co.uk/trends/trendsReport?hl=en-US&q='+q+'&date='+date+'+&tz=Etc%2FGMT&content=1&export=1';
+			var csv_url ='https://www.google.co.uk/trends/trendsReport\?hl\=en-GB\&q\='+q+'\&geo\=GB\&date\='+d+'\&cmpt\=q\&tz\=Etc%2FGMT\&tz\=Etc%2FGMT\&content\=1\&export\=1';
 			console.log(csv_url);
 			exec(command+' '+csv_url, puts);
 		}
-
-	}
+	} else {
+        var d = encodeURIComponent(date.trim());
+        var csv_url = 'https://www.google.co.uk/trends/trendsReport\?hl\=en-GB\&q\='+q+'\&geo\=GB\&date\='+d+'\&cmpt\=q\&tz\=Etc%2FGMT\&tz\=Etc%2FGMT\&content\=1\&export\=1';
+        console.log(encodeURIComponent(csv_url));
+        exec(command+' '+csv_url, puts);
+    }
 }
 
 // function jsdom_jsdom(html) {
@@ -134,7 +140,7 @@ function get_csvs(query, range) {
 
 function main() {
 	check_command_line_arguments();
-	get_csvs("mind charity");	
+	get_csv_exec('mind charity', '1/2015+1m');	
 }
 
 main();

@@ -9,6 +9,7 @@
     "request"   : "latest",
     "mysql"     : "latest",
     "jsdoc"     : "latest",
-    "cookies.txt"    : "latest",
+    "cookies.txt": "latest",
+    "underscore" : "latest"
   }
 }

@@ -4,6 +4,7 @@ var mysql   = require('mysql');
 var express = require('express');
 var sys = require('sys');
 var exec = require('child_process').exec;
+var _ = require('underscore');
 
 
 function puts(error, stdout, stderr) { console.log(stdout) };
@@ -20,6 +21,16 @@ function check_command_line_arguments() {
 	} else if (!array[2]) {
 	    console.log("Running without fetching from sources...");
 	}
+}
+
+function change_to_file_directory() {
+    try {
+      process.chdir(__dirname);
+      console.log('Current directory: ' + process.cwd());
+    }
+    catch (err) {
+      console.log('chdir: ' + err);
+    }
 }
 
 /** Adding function stripSlashes to String to remove '\' from JSON Strings */
@@ -108,39 +119,42 @@ function get_csv_exec(query, date) {
     }
 }
 
-// function jsdom_jsdom(html) {
-// 	jsdom.defaultDocumentFeatures = { 
-// 		  FetchExternalResources   : ['script', 'frame', 'iframe', 'link'],
-// 		  ProcessExternalResources : ['script'],
-// 		  MutationEvents           : '2.0',
-// 		  QuerySelector            : false
-// 	};
+function extract_csv_data(csv_filepath) {
+    fs.readFile(csv_filepath, 'utf8', function (err,data) {
+        if (err) {
+            return console.log(err);
+        } 
+        var values = data.match(/\d{4}-\d{2}-\d{2}-\d{2}:\d{2}\s\w{3},\d+/gm);
+        for (var i=0; i<values.length; i++) {
+            var line = values[i].split(',');
+            line[0] = line[0].match(/\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/g);
+            values[i] = [line[0].toString(), line[1]];
+        }
+        values = JSON.stringify(values, null, 2);
+        console.log(values);
+    });
+}
 
-// 	// var htmlDoc = fs.readFileSync("./content.html");
-
-// 	var document = jsdom.jsdom(html);
-// 	var window = document.defaultView;
-
-// 	window.onload = function () {
-// 		$(window).document.body.find("svg").each(function(i, element) {
-// 			var c = cheerio.load(html);
-// 			console.log(c('div.time-chart-container').attr('id'));
-// 		});
-// 	}
-// }
-
-// function jsdom_env() {
-// 	jsdom.env({
-// 		url: "https://www.google.co.uk/trends/explore#q=transgender&date=now%201-H&cmpt=q&tz=Etc%2FGMT",
-// 		scripts: ["http://code.jquery.com/jquery.js"],
-// 		done: function (err, window) {
-// 		}
-// 	});
-// }
+function alternate_key_value(array) {
+    var object = {}
+}
 
 function main() {
 	check_command_line_arguments();
-	get_csv_exec('mind charity', '1/2015+1m');	
+    change_to_file_directory();
+    extract_csv_data('shtest.csv');
 }
 
 main();
+
+var app = express();
+
+app.get('/', function(req, res) {
+    res.send('Hello World!');
+});
+
+app.post('/', function(req, res) {
+    res.send('Goodbye World!');
+});
+
+app.listen(process.env.PORT, process.env.IP);

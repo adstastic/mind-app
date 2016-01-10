@@ -2,25 +2,32 @@
  * Base structure
  */
 
-/* Move down content because we have a fixed navbar that is 50px tall */
 body {
-  padding-top: 50px;
-  background-color: #FFCC00;
+      position: relative; 
+  }
+  .affix {
+      top:0;
+      width: 100%;
+      z-index: 9999 !important;
+  }
+  .navbar {
+      margin-bottom: 0px;
+  }
+
+  .navbar-nav > li{
+  padding-left:10px;
+  padding-right:10px;
 }
 
-.container {
-    zoom: 1 /* IE6&7 */
+  .navbar-collapse {
+  padding-top: 10px;
+  padding-bottom: 10px;
 }
+  .affix ~ .container-fluid {
+     position: relative;
+     top: 50px;
+  }
 
-.container:before,
-.container:after {
-    content: "";
-    display: table;
-}
-
-.container:after {
-    clear: both;
-}
 /*
  * Global add-ons
  */
@@ -30,33 +37,54 @@ body {
   border-bottom: 1px solid #eee;
 }
 
+/* 
+ * First div with picture 
+ */
+
+.logo {
+ margin-top: 0px;
+ height: 160px;
+ background: url(http://www.newportmind.org/mind-logo-2.png/);
+ background-repeat: no-repeat;
+ background-position: 50% 50%;
+ opacity: 1;
+ z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    margin-top: 0px;
+    height: 60px;
+    background-size: 10% 30%;
+}
+  }
+
+
+.logo .cover {
+  z-index: -1;
+  background: url(http://www.flyingkite.co.uk/wp-content/uploads/charity-infographic-design-1.jpg) center center;
+  opacity: 0.2;
+  width: 100%;
+  height: 100%;
+}
+
+
 /*
  * Top navigation
  * Hide default border to remove 1px line.
  */
-.navbar-fixed-top {
-  background-color: #660066;
-  border: 10;
-  border-color:#660066; 
-  margin-bottom: 35px;
+.navbar-default {
+  border-radius: 0;
+  border: 0;
+  border-color: #ffcc00;
+  background-color: #ffcc00;
 }
 
-.navbarou {
-  background-color: #999999;
-  border: 10;
-  border-color:#999999; 
-  margin-top: 35px;
-  width:100%;
-  padding:0 50px;
-  text-align: center;
+@media (min-width: 768px) {
+  .icon-bar {
+    border-color: #ffcc33;
 }
-
-/* button customization */
-.btn-sample { 
-  color: #ffffff; 
-  background-color: #0099CC; 
-  border-color: #130269; 
-} 
+  }
 
 
 /*
@@ -116,13 +144,6 @@ body {
 }
 .main .page-header {
   margin-top: 0;
-}
-
-.page-header {
-  color: #0099CC;
-  font-family: tahoma;
-}
-
 }
 
 

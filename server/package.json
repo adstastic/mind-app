@@ -1,15 +1,18 @@
 {
-  "name"         : "mindapp_server",
-  "version"      : "0.0.1",
-  "description"  : "Query API's and process responses",
-  "main"         : "server.js",
-  "author"       : "Adi",
-  "dependencies" : {
-    "express"   : "latest",
-    "request"   : "latest",
-    "mysql"     : "latest",
-    "jsdoc"     : "latest",
-    "cookies.txt": "latest",
-    "underscore" : "latest"
+  "name": "mindapp_server",
+  "version": "0.0.1",
+  "description": "Query API's and process responses",
+  "main": "server.js",
+  "author": "Adi",
+  "dependencies": {
+    "cookies.txt": "^0.1.1",
+    "express": "latest",
+    "jsdoc": "latest",
+    "mysql": "latest",
+    "request": "latest",
+    "socket.io": "^1.4.3",
+    "sprintf-js": "^1.0.3",
+    "tough-cookie-filestore": "0.0.1",
+    "underscore": "latest"
   }
 }

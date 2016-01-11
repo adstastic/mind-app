@@ -17,7 +17,7 @@ while getopts aeo:r:d: opt; do
             done
             ;;
         o)
-            q = $OPTARG
+            q==$OPTARG
             wget -x --load-cookies ./cookies.txt -O "./data/$dir/$(date +"%m-%d-%Y-%T")-$q.csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
             ;;
         r)
@@ -41,5 +41,8 @@ while getopts aeo:r:d: opt; do
             for d in "${dates[@]}"; do
                 wget -x --load-cookies ./cookies.txt -O "$dir/$now-$d-$q).csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
             done
+        
+        x) 
+            q
     esac
 done

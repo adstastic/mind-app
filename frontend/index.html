@@ -333,7 +333,7 @@
     <script type="text/javascript">
     google.load('visualization', '1', { packages: ['corechart', 'controls'] });
     //function to draw the chart by converting the CSV file into a 2D array and then storing the array into a GoogleCharts data table which is used to create the graph
-    function drawVisualization(array) {
+    function drawVisualization(array, title) {
 
         var arrayData = array || $.csv.toArrays(array, {onParseValue: $.csv.hooks.castToScalar});
 
@@ -345,7 +345,7 @@
            dataTable: data,
            options:{
               width: 900, height: 400,
-              title: 'Social Media Trends',
+              title: 'Social Media Trends for '+title,
               titleTextStyle : {color: '#003377', fontSize: 14}
            }
         });

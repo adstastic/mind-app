@@ -1,14 +1,15 @@
-var fs      = require('fs'),
+var fs = require('fs'),
     request = require('request'),
-    mysql   = require('mysql'),
+    // mysql   = require('mysql'),
     express = require('express'),
-    sys = require('sys'),
+    // sys = require('sys'),
     exec = require('child_process').exec,
-    path = require('path'),
+    // path = require('path'),
     sprintf = require("sprintf-js").sprintf,
-    cookie = require('cookies.txt');
-
-function puts(error, stdout, stderr) { console.log(stdout) };
+    // cookie = require('cookies.txt'),
+    Twit = require('twit');
+    
+function puts(error, stdout, stderr) { console.log(stdout) }
 
 function check_command_line_arguments() {
 	var array = [];
@@ -39,7 +40,6 @@ String.prototype.stripSlashes = function(){
     return this.replace('\\"', '\"');
 };
 
-var app = express();
 var url = 'http://www.google.com/trends/fetchComponent?q=als,ice%20bucket%20challenge&cid=TIMESERIES_GRAPH_0&export=3';
 
 function fetch() {
@@ -57,7 +57,7 @@ function fetch() {
 
 function response_to_json(body, outfilename) {
 	// read parse response body to JSON
- 	var json_obj = JSONify(data);
+ 	var json_obj = JSONify(body);
   	var outfile = outfilename+'.json';
   	fs.writeFile('./'+outfile, JSON.stringify(json_obj, null, 2), function(err) {
     	if (err) throw err;
@@ -70,7 +70,7 @@ function JSONify(data) {
     var json_data = data.split(/\((.+)?/)[1]; // Remove leading "google.visualization.Query.setResponse("
     json_data = json_data.slice(0, -2); // Remove last two characters (trailing ');') to correspond with leading
     var date_function_regex = /new\sDate\((\d{4}),(\d{1,2}),(\d{1,2})\)/g; // key of date field is given as function call, must be change to JSON compatible date for successful parsing
-    json_str = json_data.replace(date_function_regex, function(match, yyyy, m, d) {
+    var json_str = json_data.replace(date_function_regex, function(match, yyyy, m, d) {
         // Replace match with date
         var date = new Date(yyyy, m, d);
         return JSON.stringify(date);
@@ -100,56 +100,38 @@ var date_dict = {
     'at'     : ""
 };  
 
-function get_csv_exec(query, date) {
-	var q = encodeURIComponent(query.trim());
-    var filename = './data.csv';
-    console.log(filename);
-	var command = 'wget -x --load-cookies ./cookies.txt -O '+filename;
-	if (date == "") {
-		for (var key in date_dict) {
-			var date = date_dict[key];
-			var csv_url ='https://www.google.co.uk/trends/trendsReport\?hl\=en-GB\\\&q\='+q+'\\\&geo\=GB\\\&date\='+d+'\\\&cmpt\=q\\\&tz\=Etc%2FGMT\\\&tz\=Etc%2FGMT\\\&content\=1\\\&export\=1';
-			console.log(csv_url);
-			exec(command+' '+csv_url, puts);
-		}
-	} else {
-        var d = encodeURIComponent(date.trim());
-        var csv_url = 'https://www.google.co.uk/trends/trendsReport\?hl\=en-GB\\\&q\='+q+'\\\&geo\=GB\\\&date\='+d+'\\\&cmpt\=q\\\&tz\=Etc%2FGMT\\\&tz\=Etc%2FGMT\\\&content\=1\\\&export\=1';
-        console.log(encodeURIComponent(csv_url));
-        exec(command+' '+csv_url, puts);
-    }
-}
-
 function extract_csv_data(data, options, callback) {
     var values = data.match(/\d{4}-\d{2}-\d{2}-\d{2}:\d{2}\s\w{3},\d+/gm);
-    for (var i=0; i<values.length; i++) {
-        var line = values[i].split(',');
-        line[0] = line[0].match(/\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/g);
-        values[i] = [line[0].toString(), parseFloat(line[1])];
-    }
-    values.unshift(['time', 'relative interest']); // add element to beginning of array
-    if (options.json) {
-        values = JSON.stringify(values, null, 2);
-    }
-    if (typeof callback ==  "function") {
-        callback(values);      
-    } else {    
-        return values;
-    }
+    // if (values) {
+        for (var i=0; i<values.length; i++) {
+            var line = values[i].split(',');
+            line[0] = line[0].match(/\d{4}-\d{2}-\d{2}-\d{2}:\d{2}/g);
+            values[i] = [line[0].toString(), parseFloat(line[1])];
+        }
+        values.unshift(['time', 'relative interest']); // add element to beginning of array
+        if (options.json) {
+            values = JSON.stringify(values, null, 2);
+        }
+        if (typeof callback ==  "function") {
+            callback(values);      
+        } else {    
+            return values;
+        }
+    // }
 }
 
 
 // Adds leading 0's to all date params and concat's to last 2 characters to ensure 2 digit output
 function pretty_timestamp() {
-    var d = new Date()
+    var d = new Date();
     var second = ('0' + d.getSeconds()).slice(-2),
         minute = ('0' + d.getMinutes()).slice(-2),
         hour = ('0' + d.getHours()).slice(-2),
         day = ('0' + d.getDay()).slice(-2),
         month = ('0' + d.getDay()+1).slice(-2),
         year = d.getFullYear();
-    var formatted_date = sprintf('%s-%s-%s.%s:%s:%s', day, month, year, hour, minute, second)
-    return formatted_date
+    var formatted_date = sprintf('%s-%s-%s.%s:%s:%s', day, month, year, hour, minute, second);
+    return formatted_date;
 }
 
 function wget(options, callback) {
@@ -177,12 +159,11 @@ function wget(options, callback) {
             var cmd = 'wget -x --load-cookies ./cookies.txt -O - -o /dev/null '+ URL;
         } else { 
             if (options.filename) {
-                var filename = options.filename;
+                filename = options.filename;
             } else { // set filename with datetime and search params
-                var d = new Date();
                 filename = sprintf("%s-%s.%s.csv", query, options.date, pretty_timestamp());
             }
-            var cmd = 'wget -x --load-cookies ./cookies.txt -O "'+filename.toString() +'" '+ URL;
+            cmd = 'wget -x --load-cookies ./cookies.txt -O "'+filename.toString() +'" '+ URL;
         }
         execute(cmd, callback);
     }
@@ -192,83 +173,129 @@ function wget(options, callback) {
 function main() {
 	check_command_line_arguments();
     change_to_file_directory();
-    // extract_csv_data('shtest.csv');
-    // wget('hello', date_dict['1h']);
-    // cookie.parse('./cookies.txt', function (jsonCookie) {
-    //     var URL = 'https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=hello&geo=GB&date=&cmpt=q&tz=Etc%2FGMT&content=1&export=1';
-        
-    //     var options = {
-    //       url: URL,
-    //       headers: {
-    //         'Cookie' : jsonCookie
-    //       }
-    //     };
-        
-    //     function callback(error, response, body) {
-    //       if (!error && response.statusCode == 200) {
-    //         console.log(body);
-    //       }
-    //     }
-        
-    //     request(options, callback);
-    // });
 }
 
 main();
 
+// change the keys and secrets to environment variables later for security, set using command line when node instantiated or using export
 
-var app = express();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
+// twitter.get('search/tweets', 
+//     {
+//         q : '#mentalhealth',
+//         since : 2007-01-01
+//     },
+//     function (twitter_err, data, response) {
+//         var subset = data.statuses;
+//         if (twitter_err) throw twitter_err;
+//     	fs.writeFile('./twitter_test.json', JSON.stringify(data.statuses.slice(0,2), null, 4), function(fs_err) {
+//     	    if (fs_err) throw fs_err;
+//           	console.log("Saved JSON string");
+//       	});
+//       	for (var status in subset) {
+//       	    var hashtags = subset[status].entities.hashtags;
+//       	    for (var hashtag in hashtags) {
+//       	        console.log(hashtags[hashtag].text);
+//       	    }
+//       	}
+//     }
+// );
 
-app.use('/', express.static(__dirname + '/../frontend'));
 
-// for dev, will be removed in final
-app.use('/datavis', express.static(__dirname + '/../DataVisualisation'));
-
-io.on('connection', function(client) {
-    console.log('Client '+ client.id + ' connected.');
+(function () {
     
-    client.on('join', function(data) {
-        console.log(data);
-        client.emit('messages', 'hello from server');
+    var twitter = new Twit({
+        consumer_key : 'kirRWQYmrpOB45THZFXSICM2u',
+        consumer_secret : '1m2q5Q0tAPInrjGrvPQ1manCo27oAXWMdOcMaBFNA8iubjAini',
+        access_token : '33188875-5YWOXnLbgSRl8Tsfkjjqm2ao5uA0OuXQY8vg2tsbo',
+        access_token_secret : 'tqSIAHX6X9b8RnARVYahNtod3AWvf414dOPr57zqFx5aX'
     });
     
-    client.on('disconnect', function(data) {
-        console.log('Client '+ client.id + ' disconnected.');
+    var search_terms = "mindcharity,mentalhealth,Abuse,Addiction and dependency,Advocacy,Aftercare under section 117 of the Mental Health Act,Anger,Antidepressants,Antidepressants,Antipsychotics,Anxiety,panic attacks,Arts therapies,Benefits,Bereavement,Bipolar disorder,Body dysmorphic disorder,BDD,Borderline personality disorder,BPD,Carers,coping,Clinical Negligence,Cognitive behavioural therapy,CBT,Community care,aftercare,mental health,social care,Complementary therapy,alternative therapy,Consent to treatment,CRHT,Crisis services,Debt and mental health,Depression,Dialectical behaviour therapy (DBT),Disability discrimination,Discharge from hospital,Discrimination at work,Dissociative disorders,Driving,Drugs - street drugs & alcohol,Eating problems,Ecotherapy,Electroconvulsive therapy (ECT),Financial help,Food and mood,Hearing voices,Hoarding,Holidays and respite care,Housing,Human Rights Act 1998,Hypomania and mania,IMHAs (England),IMHAs (Wales),Insurance cover and mental health,Learning disability support,Legal Advice Service- FAQs,LGBT mental health,Lithium and other mood stabilisers,Loneliness,Medication,Medication - drugs A-Z,Medication - stopping or coming off,Mental Capacity Act 2005,Mental Health Act 1983,Mental health and the courts,Mental health and the police,Mental health problems,Mindfulness,Money and mental health,Nearest relative,Neurosurgery for mental disorder,Obsessive-compulsive disorder,ocd,Online safety and support,Panic attacks,Paranoia,Parenting with a mental health problem,Peer support,Personal budgets,Personal information,Personality disorders,Phobias,Physical activity, sport and exercise,Postnatal depression,Post-traumatic stress disorder,ptsd,Psychosis,Relaxation,Schizoaffective disorder,Schizophrenia,Seasonal affective disorder,Sectioning,Seeking help for a mental health problem,Self-esteem,Self-harm,Sleep problems,Sleep problems,Sleeping pills,tranquillisers,St John's wort,mental health statistics,mental health facts,Stress,Student life,Suicidal feelings,Suicide,Talking treatments,Tardive dyskinesia,Wellbeing,emergency services";
+    
+    // var uk = [ '-9.23' , '2.69' , '60.85' , '49.84' ];
+    var uk = ['-9.05', '48.77', '2.19', '58.88'];
+    
+    var stream = twitter.stream('statuses/filter', { /*rack: search_terms,*/locations: uk/*, language : 'en'*/ })  
+    var count = 0;
+    
+    stream.on('tweet', function(tweet) {
+        console.log(count++);
+        if (tweet.place) console.log('Place: ',tweet.place.country);
+        if (tweet.user.location) console.log('User: ',tweet.user.location);
+        // if (tweet.geo) console.log('Geo: ',tweet.geo.coordinates);
+        // if (tweet.coordinates) console.log('Coords: ',tweet.coordinates.coordinates);
+        // console.log(tweet.text);
     });
     
-    client.on('search', function(data) {
-        console.log('Search from client: ', data);
-        switch (data.data) {
-            case 'google':
-                console.log('Getting data from Google');
-                var options = {
-                    query   : data.query,
-                    date    : data.date,
-                    print   : false
-                };
-                wget(options, function(results) {
-                    var csv_data = extract_csv_data(results, { json : false })
-                    client.emit('results', csv_data)
-                });
-                break;
-            case 'twitter':
-                console.log('Getting data from Twitter');
-                var response = 0; /* get twitter data*/
-                break;
-            case 'instagram':
-                console.log('Getting data from Instagram');
-                var response = 0; /* get instagram data*/
-                break;
-        }
+    stream.on('error', function(error) {
+        console.log(error);
+    });
+
+    var app = express();
+    var server = require('http').createServer(app);
+    var io = require('socket.io')(server);
+    
+    app.use(function(req, res, next) {
+      res.header("Access-Control-Allow-Origin", "*");
+      res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+      next();
+    });
+    
+    app.use('/', express.static(__dirname + '/../frontend'));
+    
+    // for dev, will be removed in final
+    app.use('/datavis', express.static(__dirname + '/../DataVisualisation'));
+    
+    io.on('connection', function(client) {
+        console.log('Client '+ client.id + ' connected.');
+        
+        var stream_2 = twitter.stream('statuses/filter', { track: search_terms,/*locations: uk,*/ language : 'en'})  
+        var count_2 = 0;
+        
+        stream_2.on('tweet', function(tweet) {
+            client.emit('twitter', count_2++);
+            client.emit('twitter', tweet.text);
+        });
+        
+        stream_2.on('error', function(error) {
+            client.emit('twitter', error);
+        });
+        
+        client.on('join', function(data) {
+            console.log(data);
+            client.emit('messages', 'hello from server');
+        });
+        
+        client.on('disconnect', function(data) {
+            console.log('Client '+ client.id + ' disconnected.');
+        });
+        
+        client.on('search', function(data) {
+            console.log('Search from client: ', data);
+            switch (data.data) {
+                case 'google':
+                    console.log('Getting data from Google');
+                    var options = {
+                        query   : data.query,
+                        date    : data.date,
+                        print   : false
+                    };
+                    wget(options, function(results) {
+                        var csv_data = extract_csv_data(results, { json : false })
+                        client.emit('results', { data : csv_data, title : data.query })
+                    });
+                    break;
+                case 'twitter':
+                    console.log('Getting data from Twitter');
+                    var response = 0; /* get twitter data*/
+                    break;
+                case 'instagram':
+                    console.log('Getting data from Instagram');
+                    var response = 0; /* get instagram data*/
+                    break;
+            }
+        })
     })
-})
-
-server.listen(process.env.PORT || 3000);
+    server.listen(process.env.PORT || 3000);
+})();

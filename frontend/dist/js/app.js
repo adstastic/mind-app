@@ -33,6 +33,10 @@ $('#submit').click(function() {
 });
 
 socket.on('results', function(data) {
+  console.log(data.data);
+  drawVisualization(data.data, data.title);
+})
+
+socket.on('twitter', function(data) {
   console.log(data);
-  drawVisualization(data);
 })

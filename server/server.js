@@ -90,14 +90,14 @@ function read_file(outfilename, callback) {
 }
 
 var date_dict = {
-    '1y'    : "today+12-m",
+    'Last Year'    : "today+12-m",
     '3m'     : "today+3-m",
-    '1m'     : "today+1-m",
-    '1w'     : "now+7-d",
-    '1d'     : "now+1-d",
+    'Last Month'     : "today+1-m",
+    'Last Week'     : "now+7-d",
+    'Last Day'     : "now+1-d",
     '4h'     : "now+4-H",
-    '1h'     : "now+1-H",
-    'at'     : ""
+    'Last Hour'     : "now+1-H",
+    'ALl Time'     : ""
 };  
 
 function extract_csv_data(data, options, callback) {
@@ -146,7 +146,8 @@ function wget(options, callback) {
               console.log('exec error: ' + error);
             }
             if (typeof callback == "function") {
-                read_file(filename, callback); // sends stdout to callback
+                // read_file(filename, callback); // sends stdout to callback
+                callback(stdout);
             } 
         });
     }
@@ -180,29 +181,26 @@ main();
 // change the keys and secrets to environment variables later for security, set using command line when node instantiated or using export
 
 
-// twitter.get('search/tweets', 
-//     {
-//         q : '#mentalhealth',
-//         since : 2007-01-01
-//     },
-//     function (twitter_err, data, response) {
-//         var subset = data.statuses;
-//         if (twitter_err) throw twitter_err;
-//     	fs.writeFile('./twitter_test.json', JSON.stringify(data.statuses.slice(0,2), null, 4), function(fs_err) {
-//     	    if (fs_err) throw fs_err;
-//           	console.log("Saved JSON string");
-//       	});
-//       	for (var status in subset) {
-//       	    var hashtags = subset[status].entities.hashtags;
-//       	    for (var hashtag in hashtags) {
-//       	        console.log(hashtags[hashtag].text);
-//       	    }
-//       	}
-//     }
-// );
 
+
+function search(string, keywords) {
+    var found;
+    for (var i = 0; i < keywords.length; i++) {
+        var keyword = keywords[i].toLowerCase();
+        if (string.search(keyword) > -1) {
+            found = true;
+            break;
+        } 
+        else found = false;
+    }
+    return found;
+}   
 
 (function () {
+    
+    var app = express();
+    var server = require('http').createServer(app);
+    var io = require('socket.io')(server);
     
     var twitter = new Twit({
         consumer_key : 'kirRWQYmrpOB45THZFXSICM2u',
@@ -211,30 +209,79 @@ main();
         access_token_secret : 'tqSIAHX6X9b8RnARVYahNtod3AWvf414dOPr57zqFx5aX'
     });
     
-    var search_terms = "mindcharity,mentalhealth,Abuse,Addiction and dependency,Advocacy,Aftercare under section 117 of the Mental Health Act,Anger,Antidepressants,Antidepressants,Antipsychotics,Anxiety,panic attacks,Arts therapies,Benefits,Bereavement,Bipolar disorder,Body dysmorphic disorder,BDD,Borderline personality disorder,BPD,Carers,coping,Clinical Negligence,Cognitive behavioural therapy,CBT,Community care,aftercare,mental health,social care,Complementary therapy,alternative therapy,Consent to treatment,CRHT,Crisis services,Debt and mental health,Depression,Dialectical behaviour therapy (DBT),Disability discrimination,Discharge from hospital,Discrimination at work,Dissociative disorders,Driving,Drugs - street drugs & alcohol,Eating problems,Ecotherapy,Electroconvulsive therapy (ECT),Financial help,Food and mood,Hearing voices,Hoarding,Holidays and respite care,Housing,Human Rights Act 1998,Hypomania and mania,IMHAs (England),IMHAs (Wales),Insurance cover and mental health,Learning disability support,Legal Advice Service- FAQs,LGBT mental health,Lithium and other mood stabilisers,Loneliness,Medication,Medication - drugs A-Z,Medication - stopping or coming off,Mental Capacity Act 2005,Mental Health Act 1983,Mental health and the courts,Mental health and the police,Mental health problems,Mindfulness,Money and mental health,Nearest relative,Neurosurgery for mental disorder,Obsessive-compulsive disorder,ocd,Online safety and support,Panic attacks,Paranoia,Parenting with a mental health problem,Peer support,Personal budgets,Personal information,Personality disorders,Phobias,Physical activity, sport and exercise,Postnatal depression,Post-traumatic stress disorder,ptsd,Psychosis,Relaxation,Schizoaffective disorder,Schizophrenia,Seasonal affective disorder,Sectioning,Seeking help for a mental health problem,Self-esteem,Self-harm,Sleep problems,Sleep problems,Sleeping pills,tranquillisers,St John's wort,mental health statistics,mental health facts,Stress,Student life,Suicidal feelings,Suicide,Talking treatments,Tardive dyskinesia,Wellbeing,emergency services";
+    twitter.get('search/tweets', 
+        {
+            q : '#mentalhealth',
+            since : 2007-01-01
+        },
+        function (twitter_err, data, response) {
+            var subset = data.statuses;
+            if (twitter_err) throw twitter_err;
+        // 	fs.writeFile('./twitter_test.json', JSON.stringify(data.statuses.slice(0,2), null, 4), function(fs_err) {
+        // 	    if (fs_err) throw fs_err;
+        //       	console.log("Saved JSON string");
+        //   	});
+          	for (var status in subset) {
+          	    var hashtags = subset[status].entities.hashtags;
+          	    for (var hashtag in hashtags) {
+          	        console.log(hashtags[hashtag].text);
+          	    }
+          	}
+        }
+    );
     
-    // var uk = [ '-9.23' , '2.69' , '60.85' , '49.84' ];
+    var search_terms = "mindcharity,mentalhealth,Abuse,Addiction,dependency,Advocacy,Aftercare,Anger,Antidepressants,Antidepressants,Antipsychotics,Anxiety,panic attacks,Arts therapies,Benefits,Bereavement,Bipolar disorder,Body dysmorphic disorder,Borderline personality disorder,BPD,Carers,coping,Clinical Negligence,Cognitive behavioural therapy,CBT,Community care,aftercare,mental health,social care,Complementary therapy,alternative therapy,Consent to treatment,CRHT,Crisis services,Debt and mental health,Depression,Dialectical behaviour therapy,Disability discrimination,Discharge from hospital,Discrimination at work,Dissociative disorders,Driving,Drugs - street drugs & alcohol,Eating problems,Ecotherapy,Electroconvulsive therapy,Financial help,Hearing voices,Hoarding,Holidays and respite care,Housing,Human Rights Act 1998,Hypomania and mania,IMHAs (England),IMHAs (Wales),Insurance cover and mental health,Learning disability support,LGBT mental health,Lithium and other mood stabilisers,Loneliness,Medication,Medication - drugs A-Z,Medication - stopping or coming off,Mental Capacity Act 2005,Mental Health Act 1983,Mental health and the courts,Mental health and the police,Mental health problems,Mindfulness,Money and mental health,Nearest relative,Neurosurgery for mental disorder,Obsessive-compulsive disorder,ocd,Online safety and support,Panic attacks,Paranoia,Parenting with a mental health problem,Peer support,Personal budgets,Personal information,Personality disorders,Phobias,Physical activity, sport and exercise,Postnatal depression,Post-traumatic stress disorder,ptsd,Psychosis,Relaxation,Schizoaffective disorder,Schizophrenia,Seasonal affective disorder,Sectioning,Seeking help for a mental health problem,Self-esteem,Self-harm,Sleep problems,Sleep problems,Sleeping pills,tranquillisers,St John's wort,mental health statistics,mental health facts,Stress,Student life,Suicidal feelings,Suicide,Talking treatments,Tardive dyskinesia,Wellbeing,emergency services";
+    
+    var search_array = search_terms.split(',');
+    
+    function process_tweet(tweet) {
+        console.time('process_tweet');
+        if (search(tweet.text.toLowerCase(), search_array)) {
+            var location = ((tweet.place.country) ? tweet.place.country : tweet.user.location);
+            if (tweet.entities.hashtags) {
+                for (var hashtag in tweet.entities.hashtags) {
+                    console.log(hashtag);
+                }
+            }
+            var tweet_data = { user: tweet.user.name, text : tweet.text, location : location }
+            console.timeEnd('process_tweet');
+            return tweet_data;
+        } else return null;
+    } 
+    
+    /* Twitter stream for geolocation bounding box around UK */
     var uk = ['-9.05', '48.77', '2.19', '58.88'];
     
-    var stream = twitter.stream('statuses/filter', { /*rack: search_terms,*/locations: uk/*, language : 'en'*/ })  
-    var count = 0;
+    var stream_location = twitter.stream('statuses/filter', { /*rack: search_terms,*/locations: uk/*, language : 'en'*/ })  
+    var count_location = 0;
     
-    stream.on('tweet', function(tweet) {
-        console.log(count++);
-        if (tweet.place) console.log('Place: ',tweet.place.country);
-        if (tweet.user.location) console.log('User: ',tweet.user.location);
-        // if (tweet.geo) console.log('Geo: ',tweet.geo.coordinates);
-        // if (tweet.coordinates) console.log('Coords: ',tweet.coordinates.coordinates);
-        // console.log(tweet.text);
+    stream_location.on('tweet', function(tweet) {
+        if (process_tweet(tweet)) {
+            var tweet_data = process_tweet(tweet);
+            console.log(count_location++);
+            console.log(tweet_data);
+            io.sockets.emit('twitter', tweet_data);
+        };
     });
     
-    stream.on('error', function(error) {
+    stream_location.on('error', function(error) {
         console.log(error);
     });
+    
+    
+    
+    /* Twitter stream for keywords */
+    // var stream_keywords = twitter.stream('statuses/filter', { track: search_terms,/*locations: uk,*/ language : 'en'})  
+    // var count_keywords = 0;
+    
+    // stream_keywords.on('tweet', function(tweet) {
+    //     io.sockets.emit('twitter', tweet.text);
+    // });
+    
+    // stream_keywords.on('error', function(error) {
+    //     io.sockets.emit('twitter', error);
+    // });
 
-    var app = express();
-    var server = require('http').createServer(app);
-    var io = require('socket.io')(server);
     
     app.use(function(req, res, next) {
       res.header("Access-Control-Allow-Origin", "*");
@@ -250,18 +297,6 @@ main();
     io.on('connection', function(client) {
         console.log('Client '+ client.id + ' connected.');
         
-        var stream_2 = twitter.stream('statuses/filter', { track: search_terms,/*locations: uk,*/ language : 'en'})  
-        var count_2 = 0;
-        
-        stream_2.on('tweet', function(tweet) {
-            client.emit('twitter', count_2++);
-            client.emit('twitter', tweet.text);
-        });
-        
-        stream_2.on('error', function(error) {
-            client.emit('twitter', error);
-        });
-        
         client.on('join', function(data) {
             console.log(data);
             client.emit('messages', 'hello from server');
@@ -274,19 +309,20 @@ main();
         client.on('search', function(data) {
             console.log('Search from client: ', data);
             switch (data.data) {
-                case 'google':
+                case 'Google Trends':
                     console.log('Getting data from Google');
                     var options = {
                         query   : data.query,
                         date    : data.date,
-                        print   : false
+                        print   : true
                     };
                     wget(options, function(results) {
                         var csv_data = extract_csv_data(results, { json : false })
+                        console.log(csv_data);
                         client.emit('results', { data : csv_data, title : data.query })
                     });
                     break;
-                case 'twitter':
+                case 'Twitter':
                     console.log('Getting data from Twitter');
                     var response = 0; /* get twitter data*/
                     break;

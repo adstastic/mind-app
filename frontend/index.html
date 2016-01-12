@@ -1,366 +1,169 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
+<!-- saved from url=(0087)file:///Users/rimahsaini/Downloads/bootstrap-3.3-3.6/docs/examples/jumbotron/index.html -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="favicon.ico">
+    <link rel="icon" href="file:///Users/rimahsaini/Downloads/bootstrap-3.3-3.6/docs/favicon.ico">
 
     <title>Mind Dashboard</title>
-
+    
+    <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
+    <script src="./dist/js/bootstrap.min.js"></script>
     <!-- Bootstrap core CSS -->
-    <link href="dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <link href="dist/css/main.css" rel="stylesheet">
-
-    <link rel="stylesheet" href="bootstrap-multiselect.css" type="text/css"/>
-
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="assets/css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+    <link href="./dist/css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="dashboard.css" rel="stylesheet">
-    
+    <link href="./dist/css/jumbotron.css" rel="stylesheet">
+    <!--<link href="./dist/css/main.css" rel="stylesheet">-->
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/css/bootstrap-select.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/js/bootstrap-select.min.js"></script>
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+
   </head>
 
   <body>
 
-     <!-- \TOP NAVIGATION/ -->
+    <!-- Div with cover and Mind logo -->
 
-    <!-- COVER PICTURE & LOGO -->
-
-      <div class="logo" style="background:url(http://www.newportmind.org/mind-logo-2.png/) no-repeat 50% 50%;">
-      <div class="layer"></div>
+    <div class="logo">
       <div class="cover"> </div>
-      </div>
-
-    <!-- NAVBAR -->
-
-    <div id="nav">
-    <nav class="navbar navbar-default" data-spy="affix" data-offset-top="197">
-      <div class="container">
-        <div class="navbar-header">
-          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-            <span class="sr-only">Toggle navigation</span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-            <span class="icon-bar"></span>
-          </button>
-        </div>
-        <div id="navbar" class="navbar-collapse collapse">
-      
-        <ul class="nav navbar-nav">
-
-            <!-- Multiselect dropdown -->
-              <li class="dropdown">
-        <select id="data" multiple="multiple">
-              <option value="google">Google Trends</option>
-              <option value="twitter">Twitter</option>
-              <option value="instagram">Instagram</option>
-        </select>
-                </li>
-
-                <li class="dropdown">
-        <select id="time" multiple="multiple">
-              <option value="1h">Last hour</option>
-              <option value="4h">Last 4 hours</option>
-              <option value="1d">Last 24 hours</option>
-              <option value="1w">Last week</option>
-              <option value="1m">Last month</option>
-              <option value="3m">Last 3 month</option>
-              <option value="1y">Last 12 month</option>
-              <option value="at">Since 2004</option>
-        </select>
-                </li>
-
-                 <!-- Search bar -->
-                 <!-- Changed form to div so it wouldn't reload page onclick (in case form parameters left incomplete)-->
-          <div class="navbar-form navbar-left">
-            <input id="search" type="text" class="form-control" placeholder="Search">
-            <button id="submit" type="submit" class="btn btn-default"><i class="glyphicon glyphicon-search"></i></button>
-          </div>
-
-                <!-- Share and download options -->
-            <li class="dropdown">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-download-alt"></span> Download </button>
-                  <ul class="dropdown-menu">
-                    <li><a href="#">PDF</a></li>
-                    <li><a href="#">CSV</a></li>
-                  </ul>
-            </li>
-
-            <li class="dropdown">
-                <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"><span class="glyphicon glyphicon-share"></span> Share </button>
-                  <ul class="dropdown-menu">
-                    <li><a href="#">Facebook</a></li>
-                    <li><a href="#">LinkedIn</a></li>
-                    <li><a href="#">Twitter</a></li>
-                    <li><a href="#">Email</a></li>
-                  </ul>
-            </li>
-          </ul>
-      </div>
-    </nav>
-  </div>
-
-   <!-- \CONTENT/ -->
-
-    <div class="container-fluid">
-      <div class="row">
-
-    <!-- SIDEBAR TO BE UNCOMMENTED (if contains types of graphs + options enabled by database)-->
-
-        <!-- <div class="col-sm-3 col-md-2 sidebar">
-          <ul class="nav nav-sidebar">
-            <li class="active"><a href="#">Overview <span class="sr-only">(current)</span></a></li>
-            <li><a href="#">Reports</a></li>
-            <li><a href="#">Analytics</a></li>
-            <li><a href="#">Export</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><a href="">Nav item</a></li>
-            <li><a href="">Nav item again</a></li>
-            <li><a href="">One more nav</a></li>
-            <li><a href="">Another nav item</a></li>
-            <li><a href="">More navigation</a></li>
-          </ul>
-          <ul class="nav nav-sidebar">
-            <li><a href="">Nav item again</a></li>
-            <li><a href="">One more nav</a></li>
-            <li><a href="">Another nav item</a></li>
-          </ul>
-        </div> -->
-
-        <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
-          <h1 class="page-header">Dashboard</h1>
-
-          <div class="row placeholders">
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-            <div class="col-xs-6 col-sm-3 placeholder">
-              <img src="data:image/gif;base64,R0lGODlhAQABAIAAAHd3dwAAACH5BAAAAAAALAAAAAABAAEAAAICRAEAOw==" width="200" height="200" class="img-responsive" alt="Generic placeholder thumbnail">
-              <h4>Label</h4>
-              <span class="text-muted">Something else</span>
-            </div>
-          </div>
-          
-          <div id="contChart"></div>
-
-          <h2 class="sub-header">Section title</h2>
-          <div class="table-responsive">
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>#</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                  <th>Header</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>1,001</td>
-                  <td>Lorem</td>
-                  <td>ipsum</td>
-                  <td>dolor</td>
-                  <td>sit</td>
-                </tr>
-                <tr>
-                  <td>1,002</td>
-                  <td>amet</td>
-                  <td>consectetur</td>
-                  <td>adipiscing</td>
-                  <td>elit</td>
-                </tr>
-                <tr>
-                  <td>1,003</td>
-                  <td>Integer</td>
-                  <td>nec</td>
-                  <td>odio</td>
-                  <td>Praesent</td>
-                </tr>
-                <tr>
-                  <td>1,003</td>
-                  <td>libero</td>
-                  <td>Sed</td>
-                  <td>cursus</td>
-                  <td>ante</td>
-                </tr>
-                <tr>
-                  <td>1,004</td>
-                  <td>dapibus</td>
-                  <td>diam</td>
-                  <td>Sed</td>
-                  <td>nisi</td>
-                </tr>
-                <tr>
-                  <td>1,005</td>
-                  <td>Nulla</td>
-                  <td>quis</td>
-                  <td>sem</td>
-                  <td>at</td>
-                </tr>
-                <tr>
-                  <td>1,006</td>
-                  <td>nibh</td>
-                  <td>elementum</td>
-                  <td>imperdiet</td>
-                  <td>Duis</td>
-                </tr>
-                <tr>
-                  <td>1,007</td>
-                  <td>sagittis</td>
-                  <td>ipsum</td>
-                  <td>Praesent</td>
-                  <td>mauris</td>
-                </tr>
-                <tr>
-                  <td>1,008</td>
-                  <td>Fusce</td>
-                  <td>nec</td>
-                  <td>tellus</td>
-                  <td>sed</td>
-                </tr>
-                <tr>
-                  <td>1,009</td>
-                  <td>augue</td>
-                  <td>semper</td>
-                  <td>porta</td>
-                  <td>Mauris</td>
-                </tr>
-                <tr>
-                  <td>1,010</td>
-                  <td>massa</td>
-                  <td>Vestibulum</td>
-                  <td>lacinia</td>
-                  <td>arcu</td>
-                </tr>
-                <tr>
-                  <td>1,011</td>
-                  <td>eget</td>
-                  <td>nulla</td>
-                  <td>Class</td>
-                  <td>aptent</td>
-                </tr>
-                <tr>
-                  <td>1,012</td>
-                  <td>taciti</td>
-                  <td>sociosqu</td>
-                  <td>ad</td>
-                  <td>litora</td>
-                </tr>
-                <tr>
-                  <td>1,013</td>
-                  <td>torquent</td>
-                  <td>per</td>
-                  <td>conubia</td>
-                  <td>nostra</td>
-                </tr>
-                <tr>
-                  <td>1,014</td>
-                  <td>per</td>
-                  <td>inceptos</td>
-                  <td>himenaeos</td>
-                  <td>Curabitur</td>
-                </tr>
-                <tr>
-                  <td>1,015</td>
-                  <td>sodales</td>
-                  <td>ligula</td>
-                  <td>in</td>
-                  <td>libero</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-
-  <!-- FOOTER & DIVIDER-->
-
-      <hr class="featurette-divider">
-      <footer>
-        <p class="pull-right" style"color:#000"><a href="#">Back to top</a></p>
-        <p>&copy; 2016 Mind </p>
-      </footer>
     </div>
+
+
+    <!-- Navbar -->
+
+    <nav class="navbar navbar-fixed affix-top" data-spy="affix" data-offset-top="197">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
+              <span class="sr-only">Toggle navigation</span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+              <span class="icon-bar"></span>
+            </button>
+          </div>
+          <div id="navbar" class="navbar-collapse collapse">
+            <ul class="nav navbar-nav navbar-left">
+              <li class="dropdown">
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Data Source <span class="caret"></span></a>-->
+                <select id="data" class="selectpicker" title="Data Source">
+                  <option>Google Trends</option>
+                  <option>Twitter</option>
+                  <option>All</option>
+                </select>
+              </li>
+              <li class="dropdown">
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Time Span <span class="caret"></span></a>-->
+                <select id="time" class="selectpicker" title="Timespan">
+                  <option>Last Hour</option>
+                  <option>Last Day</option>
+                  <option>Last Week</option>
+                  <option>Last Month</option>
+                  <option>Last Year</option>
+                  <option>All Time</option>
+                </select>
+              </li>
+            </ul>  
+            <ul class="nav navbar-nav">
+            <form class="navbar-form" role="search">
+            <div class="input-group">            
+              <input id="search" type="text" class="form-control" placeholder="Search">
+              <span class="input-group-btn">
+                <button class="btn btn-default" id="submit" type="button"><span class="glyphicon glyphicon-search"></span></button>
+              </span>
+            </div>
+            </form>
+            </ul> 
+            <ul class="nav navbar-nav navbar-right">
+              <li class="dropdown">
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Download <span class="glyphicon glyphicon-download-alt"></span></a>-->
+                <select class="selectpicker" title="Title">
+                  <option>CSV</option>
+                  <option>PDF</option>
+                </select>
+              </li>
+              <li class="dropdown">
+                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Share <span class="glyphicon glyphicon-share"></span></a>-->
+                <select class="selectpicker" title="Share">
+                  <option>Twitter</option>Twitter
+                  <option>Facebook</option>
+                  <option>LinkedIn</option>
+                </select>
+              </li>
+            </ul>
+         
+          </div><!--/.nav-collapse -->
+        </div><!--/.container-fluid -->
+      </nav>
+
+    <!-- Main jumbotron for a primary marketing message or call to action -->
+  
+
+    <div class="container">
+      <!-- Example row of columns -->
+      <div class="row">
+        <div class="col-md-4">
+          <h2>Twitter</h2>
+          <div id="twitter-stream">
+            <ul class="list-group-item"></ul>
+          </div>
+        </div>
+        <div class="col-md-6">
+          <h2>Heading</h2>
+          <div id="tout" class='uil-rolling-css' style='transform:scale(0.6);'><div><div></div><div></div></div></div>
+          <div id="graph" style="margin:auto"></div>
+          <p><a class="btn btn-default" href="#" role="button">View details »</a></p>
+       </div>
+      </div>
+
+      <hr>
+
+      <footer>
+         <div class="container text-center">
+        <p>© 2016 Mind </p>
+      </div>
+      </footer>
+    </div> <!-- /container -->
 
 
     <!-- Bootstrap core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.3/jquery.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.0.0-alpha/js/bootstrap.min.js"></script>
     
-    <script>window.jQuery || document.write('<script src="assets/js/vendor/jquery.min.js"><\/script>')</script>
-
-    <!-- Multiselect Plugin -->
-    <script type="text/javascript" src="bootstrap-multiselect.js"></script>
-    
+     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
-    $(document).ready(function() {
-        $('#data').multiselect({
-            nonSelectedText: 'Data Source'
-        });
-    });
-
-    $(document).ready(function() {
-        $('#time').multiselect({
-            nonSelectedText: 'Time Scale'
-        });
-    });
-    </script>
-    
-    <script src="jquery.csv.min.js"></script>
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-    google.load('visualization', '1', { packages: ['corechart', 'controls'] });
-    //function to draw the chart by converting the CSV file into a 2D array and then storing the array into a GoogleCharts data table which is used to create the graph
-    function drawVisualization(array, title) {
-
-        var arrayData = array || $.csv.toArrays(array, {onParseValue: $.csv.hooks.castToScalar});
-
-        //add the array to a DataTable
-        var data = new google.visualization.arrayToDataTable(arrayData);
-        var chart = new google.visualization.ChartWrapper({
-           chartType: 'LineChart',
-           containerId: 'contChart',
-           dataTable: data,
-           options:{
-              width: 900, height: 400,
-              title: 'Social Media Trends for '+title,
-              titleTextStyle : {color: '#003377', fontSize: 14}
-           }
-        });
-        chart.draw();
-    }
+      google.load('visualization', '1', { packages: ['corechart', 'controls'] });
+      //function to draw the chart by converting the CSV file into a 2D array and then storing the array into a GoogleCharts data table which is used to create the graph
+      function drawVisualization(array, title) {
+  
+          var arrayData = array || $.csv.toArrays(array, {onParseValue: $.csv.hooks.castToScalar});
+  
+          //add the array to a DataTable
+          var data = new google.visualization.arrayToDataTable(arrayData);
+          var chart = new google.visualization.ChartWrapper({
+             chartType: 'LineChart',
+             containerId: 'graph',
+             dataTable: data,
+             options:{
+                width: 900, height: 400,
+                title: 'Social Media Trends for '+title,
+                titleTextStyle : {color: '#003377', fontSize: 14},
+                hAxis: { showTextEvery: 10 } 
+             }
+          });
+          chart.draw();
+      }
     // google.setOnLoadCallback(drawVisualization)
     </script>
+    
+    
+    <script src="./dist/js/socket.io.js"></script>
+    <script src="./dist/js/app.js"></script>
+  
 
-    <script src='dist/js/socket.io.js'></script>
-    <script src='dist/js/app.js'></script>
-
-    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-    <script src="assets/js/vendor/holder.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="assets/js/ie10-viewport-bug-workaround.js"></script>
-    <script src="assets/js/ie-emulation-modes-warning.js"></script>
-  </body>
-</html>
+</body></html>

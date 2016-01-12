@@ -1,34 +1,3 @@
-.myclass{
-  background-color:#ff0000;
-  color:#b2b2b2;
-  text-align: center;
-  
-}
-
-/* Center navbar */
-.navbar .navbar-nav {
-    display: inline-block;
-    float: none;
-}
-
-.navbar .navbar-collapse {
-    text-align: center;
-}
-
-#twitter-stream > ul {
-}
-
-#twitter-stream {
-    overflow: scroll;
-    max-height: 500px;
-}
-
-#tout {
-    padding-top: 20%;
-    padding-left: 60%;
-}
-
-/* from http://loading.io/ */
 @-webkit-keyframes uil-rolling-anim {
   0% {
     -ms-transform: rotate(0deg);
@@ -98,7 +67,6 @@
     transform: rotate(360deg);
   }
 }
-
 @-ms-keyframes uil-rolling-anim {
   0% {
     -ms-transform: rotate(0deg);

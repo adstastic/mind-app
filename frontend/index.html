@@ -7,7 +7,6 @@
     <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
-    <link rel="icon" href="file:///Users/rimahsaini/Downloads/bootstrap-3.3-3.6/docs/favicon.ico">
 
     <title>Mind Dashboard</title>
     
@@ -15,14 +14,17 @@
     <script src="./dist/js/bootstrap.min.js"></script>
     <!-- Bootstrap core CSS -->
     <link href="./dist/css/bootstrap.min.css" rel="stylesheet">
-
+    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
     <!-- Custom styles for this template -->
     <link href="./dist/css/jumbotron.css" rel="stylesheet">
-    <!--<link href="./dist/css/main.css" rel="stylesheet">-->
+    
+    <!--loading animations from loading.io-->
+    <link href="./dist/css/ripple.css" rel="stylesheet">
+    <link href="./dist/css/rolling.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/css/bootstrap-select.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/js/bootstrap-select.min.js"></script>
-    <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    
 
   </head>
 
@@ -107,14 +109,38 @@
     <div class="container">
       <!-- Example row of columns -->
       <div class="row">
-        <div class="col-md-4">
-          <h2>Twitter</h2>
-          <div id="twitter-stream">
-            <ul class="list-group-item"></ul>
+        <div id="twitter" class="col-md-4">
+          <div class="row">
+            <div id="twitter-heading">
+              <div class="col-xs-3">
+                <h2>Twitter</h2>
+                </div>
+                <div class="col-xs-2">
+                <span class="label label-info info">0</span>
+                </div>
+                <div class="col-xs-3">
+                <span class="label label-success status">Connected</span>
+                </div>
+                <div class="col-xs-3">
+                <span class="label label-warning waiting"></span>
+                </div>
+              </div>
+            </div>
+            <div id="twitter-stream">
+              <ul class="list-group-item"></ul>
+            </div>
           </div>
-        </div>
-        <div class="col-md-6">
-          <h2>Heading</h2>
+        <div id="google" class="col-md-6">
+          <div class="row">
+            <div id="google-heading">
+              <div class="col-xs-6">
+                <h2>Google Trends</h2>
+              </div>
+              <div class="col-xs-3">
+                <span class="label label-success status">Connected</span>
+              </div>
+            </div>
+            </div>
           <div id="tout" class='uil-rolling-css' style='transform:scale(0.6);'><div><div></div><div></div></div></div>
           <div id="graph" style="margin:auto"></div>
           <p><a class="btn btn-default" href="#" role="button">View details »</a></p>
@@ -137,23 +163,36 @@
     
      <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
+      /* global google*/
       google.load('visualization', '1', { packages: ['corechart', 'controls'] });
       //function to draw the chart by converting the CSV file into a 2D array and then storing the array into a GoogleCharts data table which is used to create the graph
-      function drawVisualization(array, title) {
-  
-          var arrayData = array || $.csv.toArrays(array, {onParseValue: $.csv.hooks.castToScalar});
-  
+      function drawVisualization(data) {
+        
+        var date_dict = {
+            'Last Hour' : 'dd/MM/yy hh:mm',
+            '4h' : 'dd/MM/yy hh:mm',
+            'Last Day' : 'dd/MM/yy hh:mm',
+            'Last Week' : 'dd/MM/yy hh:mm',
+            'Last Month' : 'dd/MM/yy',
+            '3m' : 'dd/MM/yy',
+            'Last Year' : 'dd/MM/yy',
+            'All Time' : 'dd/MM/yy'
+        };  
+        
+        for (var i=0; i<data.data.length; i++) {
+          data.data[i][0] = new Date(data.data[i][0]);
+        }
           //add the array to a DataTable
-          var data = new google.visualization.arrayToDataTable(arrayData);
+          var chartData = new google.visualization.arrayToDataTable(data.data);
           var chart = new google.visualization.ChartWrapper({
              chartType: 'LineChart',
              containerId: 'graph',
-             dataTable: data,
+             dataTable: chartData,
              options:{
-                width: 900, height: 400,
-                title: 'Social Media Trends for '+title,
+                width: 800, height: 400,
+                title: 'Social Media Trends for '+data.title+' over '+data.date.toLowerCase(),
                 titleTextStyle : {color: '#003377', fontSize: 14},
-                hAxis: { showTextEvery: 10 } 
+                hAxis: { format: date_dict[data.date] } 
              }
           });
           chart.draw();

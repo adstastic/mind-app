@@ -1,0 +1,202 @@
+/* Bottom under footer of 20px */
+@import url(//fonts.googleapis.com/css?family=Open+Sans);
+
+body {
+  font-family: 'Open Sans', sans-serif;
+}
+
+
+body {
+  padding-top: 0px;
+  padding-bottom: 20px;
+}
+
+
+/* First div with cover and logo */
+
+.logo {
+ margin-top: 0px;
+ height: 120px;
+ background: url(http://www.newportmind.org/mind-logo-2.png/);
+ background-repeat: no-repeat;
+ background-position: 50% 50%;
+ opacity: 1;
+ z-index: 1;
+}
+
+@media (max-width: 768px) {
+  .logo {
+    margin-top: 0px;
+    height: 50px;
+    background-size: 30% 90%;
+}
+  }
+
+.logo .cover {
+  z-index: -1;
+  background: url(http://www.flyingkite.co.uk/wp-content/uploads/charity-infographic-design-1.jpg) center center;
+  background-size: 100% 300%;
+  background-repeat: no-repeat;
+  opacity: 0.2;
+  width: 100%;
+  height: 100%;
+}
+
+@media (max-width: 768px) {
+  .logo .cover {
+    margin-top: 0px;
+    height: 50px;
+    background-size: 100% 300%;
+}
+  }
+
+/* Navbar */
+
+.navbar-fixed {
+	background-color: #194784;
+	border-radius: 0px;
+}
+
+.dropdown-toggle {
+	background-color:#fff;
+}
+
+.navbar-fixed .navbar-header .navbar-toggle {
+	border-color:#fff;
+}
+
+.navbar-fixed .navbar-header .icon-bar {
+	background-color:#fff; 
+}
+
+@media (max-width: 768px) {
+	.navbar-form {
+		margin-left: 1px;
+		margin-right: 1px;
+	}
+}
+
+.navbar-fixed .navbar-nav .open .dropdown-menu {
+  	background-color: #fff;
+    color:#3344ff;
+  }
+
+@media (max-width: 768px) {
+	.navbar-fixed .navbar-nav .open .dropdown-menu {
+		background-color: #fff;
+    color:#3344ff;
+	}
+}
+/* Options Navbar */
+
+.affix {
+      top:0;
+      width: 100%;
+      z-index: 9999 !important;
+  }
+  .navbar {
+      margin-bottom: 0px;
+  }
+
+  .navbar-nav > li{
+  padding-left:10px;
+  padding-right:10px;
+}
+
+  .navbar-collapse {
+  padding-top: 0px;
+  padding-bottom: 0px;
+}
+.affix ~ .container-fluid {
+   position: relative;
+   top: 50px;
+}
+  
+.status, .info, .waiting, .login {
+  font-size: 12px;
+  top:30px;
+  position: absolute;
+  text-align: center;
+}
+
+.info {
+  left: 50%;
+}
+
+
+#twitter-stream {
+    overflow-y: scroll;
+    overflow-x: hidden;
+    max-height: 400px;
+}
+
+#twitter-heading  {
+  height: 80px;
+}
+
+#animation {
+  margin-top: -60px;  
+  float: left;
+  text-align: left;
+}
+
+#tout {
+    padding-top: 20%;
+    padding-left: 60%;
+}
+
+.dropdown {
+  margin-top:8px;
+}
+
+.navbar .navbar-nav {
+  display: inline-block;
+  float: none;
+  vertical-align: top;
+}
+
+.navbar .navbar-collapse {
+  text-align: center;
+}
+
+.searchbox, .search {
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  #graph {
+    width: 90vw;
+  }
+}
+
+.ui-tooltip {
+  background-color: white;
+  border-color: #194784;
+  border-width: 2px;
+  border-style: solid;
+  display: inline-block;
+  border-radius: 8px;
+  padding: 5px;
+  font-size: 12px;
+  color: #194784;
+  position: absolute;
+}
+
+#keyword_add {
+  padding: 0;
+  margin-top:0;
+}
+
+.my-tooltip-theme {
+	border-radius: 5px; 
+	border: 2px solid #fff;
+	background: #194784;
+	color: #fff;
+}
+
+.my-tooltip-theme .tooltipster-content {
+	font-family: Arial, sans-serif;
+	font-size: 14px;
+	line-height: 16px;
+	padding: 8px 10px;
+}

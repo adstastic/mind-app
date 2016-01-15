@@ -13,8 +13,11 @@
     <script>window.jQuery || document.write('<script src="../../assets/js/vendor/jquery.min.js"><\/script>')</script>
     <script src="./dist/js/bootstrap.min.js"></script>
     <!-- Bootstrap core CSS -->
-    <link href="./dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/js/jquery.tooltipster.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/tooltipster/3.3.0/css/tooltipster.css" rel="stylesheet">
+
+    <link href="./dist/css/bootstrap.min.css" rel="stylesheet">
     <!-- Custom styles for this template -->
     <link href="./dist/css/jumbotron.css" rel="stylesheet">
     
@@ -24,7 +27,9 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/css/bootstrap-select.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/js/bootstrap-select.min.js"></script>
-    
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script src="./dist/js/socket.io.js"></script>
+    <script src="./dist/js/app.js"></script>
 
   </head>
 
@@ -52,55 +57,68 @@
           <div id="navbar" class="navbar-collapse collapse">
             <ul class="nav navbar-nav">
               <li class="dropdown">
-                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Data Source <span class="caret"></span></a>-->
-                <select id="data" class="selectpicker" title="Data Source">
+                <!-- keyword view with dropdown list and +/- buttons -->
+                <div id="keyword_view" class="input-group">
+                  <select id="stream" class="selectpicker" data-live-search="true" data-size="10" multiple data-header="Keywords to search Twitter stream" data-width="130px" data-selected-text-format="static" data-actions-box="true" title="Twitter Stream">
+                  </select>
+                  <span class="input-group-btn" style="width: 50px">
+                    <button id="add" class="btn btn-default tool-tip"  title="Add keyword" type="button"><span class="glyphicon glyphicon-plus"></span></button>
+                    <button id="remove" class="btn btn-default tool-tip"  title="Remove selected keyword(s)" type="button"><span class="glyphicon glyphicon-minus"></span></button>
+                    <button id="reset" class="btn btn-default tool-tip"  title="Reset keyword list" type="button"><span class="glyphicon glyphicon-repeat"></span></button>
+                  </span>
+                </div>
+                <!-- keyword add view with input and submit button -->
+                <form id="keyword_add" class="navbar-form" role="search">
+                <div class="input-group">
+                  <input id="new_keyword" type="text" class="form-control tool-tip" placeholder="Enter keyword" title="Enter a new keyword to add to the list for searching the Twitter stream">
+                  <span class="input-group-btn">
+                    <button class="btn btn-default" id="keyword_submit" title="Submit new keyword" type="button">
+                      <span class="glyphicon glyphicon-ok"></span>
+                    </button>
+                  </span>
+                </div>
+                </form>
+              </li>
+              <li class="dropdown">
+
+                <select id="data" class="selectpicker" data-width="130px" data-header="Show chart from..." title="Data Source">
                   <option>Google Trends</option>
-                  <option>Twitter</option>
-                  <option>All</option>
+                  <option data-subtext="Last week only">Twitter</option>
+                  <option data-subtext="Last week only">All</option>
                 </select>
               </li>
               <li class="dropdown">
-                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Time Span <span class="caret"></span></a>-->
-                <select id="time" class="selectpicker" title="Timespan">
+
+                <select id="time" class="selectpicker" data-width="130px" data-header="Period to search over:" title="Timespan">
                   <option>Last Hour</option>
                   <option>Last Day</option>
                   <option>Last Week</option>
                   <option>Last Month</option>
                   <option>Last Year</option>
-                  <option>All Time</option>
+                  <option data-subtext="since 2004">All Time</option>
                 </select>
               </li>
-            </ul>  
-            <ul class="nav navbar-nav">
+            <li>
             <form class="navbar-form" role="search">
             <div id="searchbox" class="input-group">            
-              <input id="search" type="text" class="form-control" placeholder="Search">
+              <input id="search" type="text" class="form-control tool-tip" placeholder="Search" title="Click the search button or press 'Enter'">
               <span class="input-group-btn">
                 <button class="btn btn-default" id="submit" type="button"><span class="glyphicon glyphicon-search"></span></button>
               </span>
             </div>
             </form>
-            </ul> 
-            <ul class="nav navbar-nav">
+            </li>
               <li class="dropdown">
                 <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Download <span class="glyphicon glyphicon-download-alt"></span></a>-->
-                <select id="export" class="selectpicker" title="Export">
+                <select id="export" class="selectpicker" data-width="130px" data-header="Export current charts as..." title="Export">
                   <option>CSV</option>
                   <option>PDF</option>
                 </select>
               </li>
-              <!--<li class="dropdown">-->
-                <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Share <span class="glyphicon glyphicon-share"></span></a>-->
-              <!--  <select id="share" class="selectpicker" title="Share">-->
-              <!--    <option>Twitter</option>Twitter-->
-              <!--    <option>Facebook</option>-->
-              <!--    <option>LinkedIn</option>-->
-              <!--  </select>-->
-              <!--</li>-->
             </ul>
          
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
+          </div>
+        </div>
       </nav>
 
     <!-- Main jumbotron for a primary marketing message or call to action -->
@@ -112,40 +130,44 @@
         <div id="twitter" class="col-md-4">
           <div class="row">
             <div id="twitter-heading">
-              <div class="col-xs-3">
+              <div class="col-xs-3 tool-tip" title="Live stream of tweets containing words or hashtags of interest from the UK">
                 <h2>Twitter</h2>
                 </div>
                 <div class="col-xs-2">
-                <span class="label label-info info">0</span>
+                  <span class="label label-info info tool-tip" title="How many tweets have arrived since this page was loaded">0</span>
                 </div>
                 <div class="col-xs-3">
-                <span class="label label-success status">Connected</span>
+                  <span class="label label-success status tool-tip" title="Server connection status">Connected</span>
                 </div>
-                <div class="col-xs-3">
-                <span class="label label-warning waiting"></span>
+                <div class="col-xs-2">
+                  <span class="label label-warning waiting tool-tip" title="How many seconds since the last tweet arrived"></span>
                 </div>
               </div>
             </div>
-            <div id="twitter-stream">
+            <div id="twitter-stream" class="tool-tip">
               <ul class="list-group-item"></ul>
             </div>
           </div>
         <div id="google" class="col-md-6">
           <div class="row">
-            <div id="google-heading">
+            <div id="chart-heading">
               <div class="col-xs-5">
                 <h2>Google Trends</h2>
               </div>
               <div class="col-xs-4">
-                <span class="label label-success status">Connected</span>
+                <span class="label label-success status tool-tip" title="Server connection status">Connected</span>
               </div>
               <div class="col-xs-3">
-                <span class="label label-default login"></span>
+                <span class="label label-default login tool-tip" title="When this page was loaded"></span>
               </div>
             </div>
             </div>
           <div id="tout" class='uil-rolling-css' style='transform:scale(0.6);'><div><div></div><div></div></div></div>
-          <div id="graph" style="margin:auto"></div>
+          <div id="graph" class="tool-tip" style="margin:auto" title="Chart navigation: Scroll to zoom, click-and-drag to pan, right-click to reset"></div>
+          <div id="graphs" class="tool-tip" title="Chart navigation: Scroll to zoom, click-and-drag to pan, right-click to reset">
+            <div id="graph1" style="margin:auto"></div>
+            <div id="graph2" style="margin:auto"></div>
+          </div>
           <!--<p><a class="btn btn-default" href="#" role="button">View details »</a></p>-->
        </div>
       </div>
@@ -162,59 +184,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     
-    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
-    <script type="text/javascript">
-      /* global google*/
-      google.load('visualization', '1', { packages: ['corechart', 'controls'] });
-      //function to draw the chart by converting the CSV file into a 2D array and then storing the array into a GoogleCharts data table which is used to create the graph
-      function drawVisualization(data) {
-        
-        var date_dict = {
-            'Last Hour' : 'dd/MM/yy hh:mm',
-            '4h' : 'dd/MM/yy hh:mm',
-            'Last Day' : 'dd/MM/yy hh:mm',
-            'Last Week' : 'dd/MM/yy hh:mm',
-            'Last Month' : 'dd/MM/yy',
-            '3m' : 'dd/MM/yy',
-            'Last Year' : 'dd/MM/yy',
-            'All Time' : 'dd/MM/yy'
-        };  
-        
-        for (var i=0; i<data.data.length; i++) {
-          data.data[i][0] = new Date(data.data[i][0]);
-        }
-          //add the array to a DataTable
-          var chartData = new google.visualization.arrayToDataTable(data.data);
-          var chart = new google.visualization.ChartWrapper({
-             chartType: 'LineChart',
-             containerId: 'graph',
-             dataTable: chartData,
-             options:{
-                width: 800, height: 400,
-                title: 'Social Media Trends for '+data.title+' over '+data.date.toLowerCase(),
-                titleTextStyle : {color: '#003377', fontSize: 14},
-                hAxis: { format: date_dict[data.date] } 
-             }
-          });
-          
-          // google.visualization.events.addListener(chart, 'ready', function () {
-          //   console.log(chart.getImageURI());
-          // });
-          
-          chart.draw();
-          // $(window).resize(function() {
-          //   if ($(window).width() < 800) {
-          //     chart.options.width = $(window).width()*0.9;
-          //     chart.draw();
-          //   }
-          // });
-      }
-    // google.setOnLoadCallback(drawVisualization)
-    </script>
-    
-    
-    <script src="./dist/js/socket.io.js"></script>
-    <script src="./dist/js/app.js"></script>
+
   
 
 </body></html>

@@ -5,14 +5,16 @@ var fs      = require('fs'),
     Twit    = require('twit'),
     _       = require('underscore'),
     Sprintf = require("sprintf-js").sprintf,
-    Request = require('request');
+    Request = require('request'),
+    q = require('q');
+
 
 process.on('uncaughtException', function (e) {
   console.log(new Date().toISOString(), e.stack || e);
   process.exit(1);
 });
 
-function puts(error, stdout, stderr) { console.log(stdout) }
+function puts(error, stdout, stderr) { console.log(stdout); }
 
 function check_command_line_arguments() {
 	var array = [];
@@ -123,7 +125,6 @@ function extract_csv_data(data, options, callback) {
                 month   = line[1]-1,
                 day     = line[2];
             var date = new Date(year, month, day);
-            console.log(date)
             if (line[3].length == 2) {
                 date.setHours(line[3]); 
                 date.setMinutes(line[4]);
@@ -186,8 +187,9 @@ function wget(options, callback) {
         var query = options.query.trim(), // remove leading and trailing whitespace
             date = date_dict[options.date][0];
         var URL = 'https://www.google.co.uk/trends/trendsReport\?hl\=en-GB\\&q\='+query+'\\&geo\=GB\\&date\='+date+'\\&cmpt\=q\\&tz\=Etc%2FGMT\\&tz\=Etc%2FGMT\\&content\=1\\&export\=1';
+        var cmd;
         if (options.print) { // print to stdout (redirect to console)
-            var cmd = 'wget -x --load-cookies ./cookies.txt -O - -o /dev/null '+ URL;
+            cmd = 'wget -x --load-cookies ./cookies.txt -O - -o /dev/null '+ URL;
         } else { 
             if (options.filename) {
                 filename = options.filename;
@@ -214,7 +216,7 @@ function search(string, keywords) {
     }
     }
     catch (e) {
-        console.error("search:",e)
+        console.error("search:",e);
     }
     return found;
 }   
@@ -228,7 +230,7 @@ function process_tweet(tweet, search_array) {
                 console.log(hashtag);
             }
         }
-        var tweet_data = { user: tweet.user.name, text : tweet.text, location : location }
+        var tweet_data = { user: tweet.user.name, text : tweet.text, location : location , metadata: tweet.metadata };
         // console.timeEnd('process_tweet');
         return tweet_data;
     } else return null; 
@@ -258,6 +260,7 @@ try {
 
 var TWITTER = DB.addCollection('twitter');
 var GOOGLE = DB.addCollection('google');
+var KEYWORDS = DB.addCollection('keywords');
 
 var app = Express();
 var server = require('http').createServer(app);
@@ -282,55 +285,47 @@ function search_tweets(twitter, params, callback) {
             //   	});
                 var tweets = [];
               	for (var status in subset) {
-              	    var status = subset[status];
-              	    var status = { 
+              	    status = subset[status];
+              	    status = { 
               	        created_at  :   new Date(status.created_at).toISOString(),
               	        date        :   new Date(status.created_at).getDate(),
               	        id          :   status.id,
               	        place       :   (status.place || status.user.location),
               	        text        :   status.text,
               	        hashtags    :   status.entities.hashtags
-              	    }
+              	    };
               	    tweets.push(status);
               	}
-              	var tweets_by_day_hour = _.chain(tweets)
+              	var tweets_week = _.chain(tweets)
                     .groupBy(function(tweet){
                         var date = new Date(tweet.created_at); 
                         return date.getDate();
                     })
-                    .indexBy(function(tweets_by_day) {
-                        var tweet = _.sample(tweets_by_day);
-                        return tweet.date;
-                    })
-                    .map(function(tweets_by_day) { 
-                        return _.groupBy(tweets_by_day, function(tweet) {
+                    .map(function(tweets_day) { 
+                        return _.groupBy(tweets_day, function(tweet) {
                             var date = new Date(tweet.created_at); 
                             return date.getHours();
                         });
                     })
                     .value();
-                    
-                // var tweets_by_day = _.groupBy(function(tweet){
-                //     var date = new Date(tweet.created_at); 
-                //     return date.getDate();
-                // });
-                
-                // _.each(tweets_by_day, function(tweets, index) {
-                //     console.log(tweets);
-                //     _.groupBy(tweets, function(tweet) {
-                //         console.log(tweet);
-                //         // var date = new Date(tweet.created_at); 
-                //         // return date.getDate();
-                //     })
-                // });
-                
-                // fs.writeFile('./twitter-search.json', JSON.stringify(tweets_by_day_hour, null, 2));
-                callback(tweets_by_day_hour);     
+                var tweets_enumerated = [];
+                tweets_enumerated.push(['time', 'tweets']);
+                for (var tweets_day in tweets_week) { 
+                    var day_tweets = tweets_week[tweets_day]; 
+                    for (var tweets_hour in day_tweets) { 
+                        var hour_tweets = day_tweets[tweets_hour]; 
+                        var date = hour_tweets[0].created_at; 
+                        var num = hour_tweets.length; 
+                        tweets_enumerated.push([date, num]); 
+                    }
+                }
+                console.log(tweets);
+                callback(tweets_enumerated);     
             }
         );
     }
     catch (e) {
-        console.error("twitter.get search/tweets:",e)
+        console.error("twitter.get search/tweets:",e);
         return null;
     }
 }
@@ -343,7 +338,7 @@ var search_array = search_terms.split(',');
 /* Twitter stream for geolocation bounding box around UK */
 var uk = ['-9.05', '48.77', '2.19', '58.88'];
 
-var stream_location = twitter.stream('statuses/filter', { /*rack: search_terms,*/locations: uk/*, language : 'en'*/ })  
+var stream_location = twitter.stream('statuses/filter', { locations: uk });  
 var count_location = 0;
 var count = 0;
 
@@ -358,11 +353,11 @@ stream_location.on('tweet', function(tweet) {
         console.log(count_location++);
         console.log(tweet_data);
         io.sockets.emit('twitter:statuses/filter', tweet_data);
-    };
+    }
 });
 }
 catch (e) {
-    console.error("twitter.stream statuses/filter:",e)
+    console.error("twitter.stream statuses/filter:",e);
 }
 stream_location.on('error', function(error) {
     console.log(error);
@@ -378,10 +373,31 @@ app.use('/', Express.static(__dirname + '/../frontend'));
 
 io.on('connection', function(client) {
     console.log('Client '+ client.id + ' connected.');
+    client.emit('stream_keywords', search_array);
     
     client.on('join', function(data) {
         console.log(data);
         client.emit('messages', 'hello from server');
+    });
+    
+    client.on('stream_keywords', function() {
+        client.emit('stream_keywords', search_array);
+    });
+    
+    client.on('keyword_add', function(data) {
+        console.log('keyword add: ', data);
+       search_array.push(data);
+       client.emit('stream_keywords', search_array);
+    });
+    
+    client.on('keyword_remove', function(data) {
+        search_array = _.difference(search_array, data);
+        client.emit('stream_keywords', search_array);
+    });
+    
+    client.on('keyword_reset', function() {
+        search_array = search_terms.split(',');
+        client.emit('stream_keywords', search_array);
     });
     
     client.on('disconnect', function(data) {
@@ -390,63 +406,74 @@ io.on('connection', function(client) {
     
     client.on('search', function(data) {
         console.log('Search from client: ', data);
+        var wget_options = {
+            query   : data.query,
+            date    : data.date,
+            print   : true
+        };
+        var csv_options = {
+            json : false,
+            date : data.date
+        };
+        var twitter_params = { 
+            q       : data.query,
+            lang    : 'en',
+            geocode : '54.26522,-3.95507,246mi',
+            count   : 100 
+        };
         switch (data.data) {
             case 'Google Trends':
                 console.log('Getting data from Google');
-                var wget_options = {
-                    query   : data.query,
-                    date    : data.date,
-                    print   : true
-                };
-                var csv_options = {
-                    json : false,
-                    date : data.date
-                };
+                
                 wget(wget_options, function(results) {
-                    var csv_data = extract_csv_data(results, csv_options)
+                    var csv_data = extract_csv_data(results, csv_options);
                     console.log(csv_data);
                     var emit_data = {
                         data : csv_data, 
                         title : data.query,
-                        date : data.date
+                        date : data.date,
+                        source : data.data
                     };
                     client.emit('results', emit_data);
                 });
                 break;
             case 'Twitter':
-                client.emit('alert', "Sorry! We are still in the process of integrating Twitter.");
                 // do not change any of the param keys, these are sent directly to twitter
-                var params = { 
-                    q       : data.query,
-                    lang    : 'en',
-                    geocode : '54.26522,-3.95507,246mi',
-                    count   : 100 
-                };
-                search_tweets(twitter, params, function(tweets) {
-                    client.emit('twitter:search/tweets', tweets);
+                search_tweets(twitter, twitter_params, function(tweets) {
+                    var emit_data = {
+                        data : tweets, 
+                        title : data.query,
+                        date : data.date,
+                        source : data.data
+                    };
+                    client.emit('twitter:search/tweets', emit_data);
                 });
                 break;
             case 'All':
-                client.emit('alert', "Sorry! We are still in the process of integrating Twitter, but here's the Google data!");
-                console.log('Getting data from Google');
-                var wget_options = {
-                    query   : data.query,
-                    date    : data.date,
-                    print   : true
-                };
-                var csv_options = {
-                    json : false,
-                    date : data.date
-                };
+                // client.emit('alert', "Sorry! We haven't finished building this functionality yet.");
+                console.log('Getting data from Google and Twitter');
+                var g, t;
+                search_tweets(twitter, twitter_params, function(tweets) {
+                    var twitter_data = {
+                        data : tweets, 
+                        title : data.query,
+                        date : data.date,
+                        source : data.data
+                    };
+                    t = twitter_data;
+                    client.emit('All:Twitter', { google: g, twitter : t});
+                });
                 wget(wget_options, function(results) {
-                    var csv_data = extract_csv_data(results, csv_options)
+                    var csv_data = extract_csv_data(results, csv_options);
                     console.log(csv_data);
-                    var emit_data = {
+                    var google_data = {
                         data : csv_data, 
                         title : data.query,
-                        date : data.date
+                        date : data.date,
+                        source : data.data
                     };
-                    client.emit('results', emit_data);
+                    g = google_data;
+                    client.emit('All:Google', { google: g, twitter : t});
                 });
         }
     });

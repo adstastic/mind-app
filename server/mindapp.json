@@ -7,7 +7,7 @@
    "watchDirectory": ".",  
    "sourceDir": "/home/ubuntu/workspace/server",
    "script": "server.js",
-   "logFile": "forever.log",
-   "outFile": "out.log",
-   "errFile": "err.log"
+   "logFile": "/home/ubuntu/workspace/server/logs/forever.log",
+   "outFile": "logs/out.log",
+   "errFile": "logs/err.log"
 }

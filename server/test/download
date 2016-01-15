@@ -1,0 +1,48 @@
+#!/bin/bash
+
+queries=( "Abuse" "Addiction and dependency" "Advocacy" "Aftercare under section 117 of the Mental Health Act" "Anger" "Antidepressants" "Antidepressants A-Z" "Antipsychotics" "Anxiety and panic attacks" "Arts therapies" "Benefits FAQ" "Bereavement" "Bipolar disorder" "Body dysmorphic disorder (BDD)" "Borderline personality disorder (BPD)" "Carers, friends and family - a guide to coping" "Children and young people" "Clinical Negligence" "Cognitive behavioural therapy (CBT)" "Community care and aftercare" "Community-based mental health and social care in England" "Complaining about health and social care" "Complementary and alternative therapy" "Consent to treatment" "CRHT (crisis teams)" "Crisis services" "Debt and mental health" "Depression" "Dialectical behaviour therapy (DBT)" "Disability discrimination" "Discharge from hospital" "Discrimination at work" "Dissociative disorders" "Driving" "Drugs - street drugs & alcohol" "Eating problems" "Ecotherapy" "Electroconvulsive therapy (ECT)" "Financial help" "Food and mood" "Hearing voices" "Hoarding" "Holidays and respite care" "Housing" "Human Rights Act 1998" "Hypomania and mania" "IMHAs (England)" "IMHAs (Wales)" "Insurance cover and mental health" "Learning disability support" "Legal Advice Service- FAQs" "LGBT mental health" "Lithium and other mood stabilisers" "Loneliness" "Medication" "Medication - drugs A-Z" "Medication - stopping or coming off" "Mental Capacity Act 2005" "Mental Health Act 1983" "Mental health and the courts" "Mental health and the police" "Mental health problems" "Mindfulness" "Money and mental health" "Nearest relative" "Neurosurgery for mental disorder" "Obsessive-compulsive disorder" "ocd" "Online safety and support" "Panic attacks" "Paranoia" "Parenting with a mental health problem" "Peer support" "Personal budgets" "Personal information" "Personality disorders" "Phobias" "Physical activity, sport and exercise" "Postnatal depression" "Post-traumatic stress disorder" "ptsd" "Psychosis" "Relaxation" "Schizoaffective disorder" "Schizophrenia" "Seasonal affective disorder" "Sectioning" "Seeking help for a mental health problem" "Self-esteem" "Self-harm" "Sleep problems" "Sleep problems" "Sleeping pills" "tranquillisers" "St John's wort" "mental health statistics" "mental health facts" "Stress" "Student life" "Suicidal feelings" "Suicide" "Talking treatments" "Tardive dyskinesia" "Wellbeing" "mental health" "Work" "emergency services" "vulnerable adults" )
+
+dates=("today+12-m" "today+3-m" "today+1-m" "now+7-d" "now+1-d" "now+4-H" "now+1-H" "" )
+
+d="now+1-H"
+
+while getopts aeo:r:d: opt; do
+    case $opt in
+        e)
+            while true; do
+                for q in "${queries[@]}"; do
+                    wget -x --load-cookies ./cookies.txt -O "./data/$dir/$(date +"%m-%d-%Y-%T")-$q.csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
+                done
+            sleep 3600
+            done
+            ;;
+        o)
+            q==$OPTARG
+            wget -x --load-cookies ./cookies.txt -O "./data/$dir/$(date +"%m-%d-%Y-%T")-$q.csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
+            ;;
+        r)
+            while true; do
+                q= $OPTARG
+                wget -x --load-cookies ./cookies.txt -O "./data/$dir/$(date +"%m-%d-%Y-%T")-$q).csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
+                sleep 3600
+            done
+            ;;
+        a)  
+            mkdir ./data/$d_ALLQ_$(date +"%m-%d-%Y-%T")
+            for q in "${queries[@]}"; do
+                wget -x --load-cookies ./cookies.txt -O "./data/$dir/$(date +"%m-%d-%Y-%T")-$d-$q.csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
+            done
+            ;;
+        d)
+            q=$OPTARG
+            now=$(date +"%m-%d-%Y-%T")
+            dir="./data/$q-ALLT-$now"
+            mkdir $dir
+            for d in "${dates[@]}"; do
+                wget -x --load-cookies ./cookies.txt -O "$dir/$now-$d-$q).csv" "https://www.google.co.uk/trends/trendsReport?hl=en-GB&q=$q&geo=GB&date=$d&cmpt=q&tz=Etc/GMT&content=1&export=1"
+            done
+        
+        x) 
+            q
+    esac
+done

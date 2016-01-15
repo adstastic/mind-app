@@ -6,8 +6,9 @@ var fs      = require('fs'),
     _       = require('underscore'),
     Sprintf = require("sprintf-js").sprintf,
     Request = require('request'),
+    server = require('http').createServer(app),
+    io = require('socket.io')(server),
     q = require('q');
-
 
 process.on('uncaughtException', function (e) {
   console.log(new Date().toISOString(), e.stack || e);
@@ -236,42 +237,6 @@ function process_tweet(tweet, search_array) {
     } else return null; 
 } 
 
-function main() {
-	check_command_line_arguments();
-    change_to_file_directory();
-}
-
-main();
-
-// var idbAdapter = new LokiIndexedAdapter('loki');
-var DB  = new Loki('./test.json');
-try {
-    var db_json = fs.readFileSync('./test.json', {
-        encoding: 'utf8'
-    });
-    DB.loadJSON(db_json);
-} catch (e) {
-    console.error("loki.loadDatabase:", e);
-    var date = new Date();
-    var dbpath = date.toISOString() + "_db.json";
-    DB = new Loki(dbpath);
-    console.log("created new DB: ", dbpath);
-}
-
-var TWITTER = DB.addCollection('twitter');
-var GOOGLE = DB.addCollection('google');
-var KEYWORDS = DB.addCollection('keywords');
-
-var app = Express();
-var server = require('http').createServer(app);
-var io = require('socket.io')(server);
-// change the keys and secrets to environment variables later for security, set using command line when node instantiated or using export
-var twitter = new Twit({
-    consumer_key : 'kirRWQYmrpOB45THZFXSICM2u',
-    consumer_secret : '1m2q5Q0tAPInrjGrvPQ1manCo27oAXWMdOcMaBFNA8iubjAini',
-    access_token : '33188875-5YWOXnLbgSRl8Tsfkjjqm2ao5uA0OuXQY8vg2tsbo',
-    access_token_secret : 'tqSIAHX6X9b8RnARVYahNtod3AWvf414dOPr57zqFx5aX'
-});
 
 function search_tweets(twitter, params, callback) {
     try {
@@ -330,9 +295,52 @@ function search_tweets(twitter, params, callback) {
     }
 }
 
+function main() {
+	check_command_line_arguments();
+    change_to_file_directory();
+}
+
+main();
+
+var app = Express();
+app.use(function(req, res, next) {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  next();
+});
+
+app.use('/', Express.static(__dirname + '/../app'));
+
+var DB  = new Loki('./db/mindapp_db.json');
+try {
+    var db_json = fs.readFileSync('./db/mindapp_db.json', {
+        encoding: 'utf8'
+    });
+    DB.loadJSON(db_json);
+} catch (e) {
+    console.error("loki.loadDatabase:", e);
+    var date = new Date();
+    var dbpath = "./db/" + date.toISOString() + "_db.json";
+    DB = new Loki(dbpath);
+    console.log("created new DB: ", dbpath);
+}
+
+var TWITTER = DB.addCollection('twitter');
+var GOOGLE = DB.addCollection('google');
+var KEYWORDS = DB.addCollection('keywords');
+
+
+// change the keys and secrets to environment variables later for security, set using command line when node instantiated or using export
+var twitter = new Twit({
+    consumer_key : 'ITCesj8sCEcBNPXh5PvRT2GMy',
+    consumer_secret : 'ue5Tkxt9pbXpsjQrT8kNtpUek5sakHxjceiCqcDKBpTIujugEj',
+    access_token : '4764679471-FzxbWcIEbteijeNLaeqrhsgPqQsO50OoML3SXsz',
+    access_token_secret : 'q2Feq9bMVx0rvqWooX6NhpjIsF4ArCywziVMTBrUfiC5m'
+});
+
 var search_terms = "mindcharity,mentalhealth,Abuse,Addiction,dependency,Advocacy,Aftercare,Anger,Antidepressants,Antidepressants,Antipsychotics,Anxiety,panic attacks,Arts therapies,Benefits,Bereavement,Bipolar disorder,Body dysmorphic disorder,Borderline personality disorder,BPD,Carers,coping,Clinical Negligence,Cognitive behavioural therapy,CBT,Community care,aftercare,mental health,social care,Complementary therapy,alternative therapy,Consent to treatment,CRHT,Crisis services,Debt and mental health,Depression,Dialectical behaviour therapy,Disability discrimination,Discharge from hospital,Discrimination at work,Dissociative disorders,Driving,Drugs - street drugs & alcohol,Eating problems,Ecotherapy,Electroconvulsive therapy,Financial help,Hearing voices,Hoarding,Holidays and respite care,Housing,Human Rights Act 1998,Hypomania and mania,IMHAs (England),IMHAs (Wales),Insurance cover and mental health,Learning disability support,LGBT mental health,Lithium and other mood stabilisers,Loneliness,Medication,Medication - drugs A-Z,Medication - stopping or coming off,Mental Capacity Act 2005,Mental Health Act 1983,Mental health and the courts,Mental health and the police,Mental health problems,Mindfulness,Money and mental health,Nearest relative,Neurosurgery for mental disorder,Obsessive-compulsive disorder,ocd,Online safety and support,Panic attacks,Paranoia,Parenting with a mental health problem,Peer support,Personal budgets,Personal information,Personality disorders,Phobias,Physical activity,Postnatal depression,Post-traumatic stress disorder,ptsd,Psychosis,Relaxation,Schizoaffective disorder,Schizophrenia,Seasonal affective disorder,Sectioning,Seeking help for a mental health problem,Self-esteem,Self-harm,Sleep problems,Sleep problems,Sleeping pills,tranquillisers,St John's wort,mental health statistics,mental health facts,Stress,Student life,Suicidal feelings,Suicide,Talking treatments,Tardive dyskinesia,Wellbeing,emergency services";
 
-var search_array = search_terms.split(',');
+var search_array = search_terms.split(',').sort();
 
 
 /* Twitter stream for geolocation bounding box around UK */
@@ -363,13 +371,7 @@ stream_location.on('error', function(error) {
     console.log(error);
 });
 
-app.use(function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-  next();
-});
 
-app.use('/', Express.static(__dirname + '/../frontend'));
 
 io.on('connection', function(client) {
     console.log('Client '+ client.id + ' connected.');

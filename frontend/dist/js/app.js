@@ -1,11 +1,17 @@
 var secs = 0;
 
 $(document).ready(function () {
+  var date = new Date();
+  var date_string = date.getDate() + "/" + date.getMonth()+1 + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+  $('#google').find('.login').html('Page Loaded at ' + date_string);
   google_loading()
   setInterval(function() {
       $('#twitter').find('.waiting').html('Waiting '+secs+'s');
       secs++;
     }, 1000);
+  $('.selectpicker').selectpicker({
+    style: 'btn-default'
+  });
 });
 
 
@@ -38,11 +44,11 @@ socket.on('disconnect', function(data) {
 });
 
 $('#submit').click(function() {
-    google_loading();
     var query = $('#search').val(),
         data  = $('#data').val(),
         time  = $('#time').val();
     
+    if (data == "Google Trends") google_loading();
     if (query && data && time) {
       var params = {
         query : query,
@@ -60,24 +66,35 @@ $('#submit').click(function() {
 
 /*global drawVisualization*/
 socket.on('results', function(data) {
-  console.log(data);
+  console.log(data.data.toString());
   drawVisualization(data);
   google_ready();
 })
 
 var tweets = 0;
 
-socket.on('twitter', function(data) {
+socket.on('twitter:statuses/filter', function(data) {
   console.log(data);
   if(data.text.length > 0) {
     tweets++;
-    $("#twitter-stream ul").prepend("<li class=\"list-group-item\">" + data.text+ "</li>");
-    $("#twitter-stream li").first().effect( "highlight", {color:"#194784"}, 2000 );
+    var user = "<span class=\"label label-pill label-primary\">" + data.user +"</span>";
+    var location = "<span class=\"label label-pill label-success\">" + data.location +"</span>";
+    var tweet_label = "<span class=\"label label-pill label-info\">Tweet</span>";
+    $("#twitter-stream ul").prepend("<li class=\"list-group-item\">" + user + " from " + location + "<br>" + data.text + "</li>");
+    $("#twitter-stream li").first().effect( "highlight", {color:"#194784"}, 2000 ); 
     var tweets = $('#twitter').find('.info').html();
     $('#twitter').find('.info').html(++tweets);
     secs = 0;
   }
 });
+
+socket.on('twitter:search/tweets', function(data) {
+  console.log('twitter:search/tweets\n',data);
+});
+
+socket.on('alert', function(data) {
+  alert(data);
+})
 
 socket.on('disconnect', function() {
   $('.status').removeClass('label-success');
@@ -102,3 +119,30 @@ function google_ready() {
   $('#tout').hide();
   $('#graph').show();
 }
+
+$('#data').change(function() { 
+  var selected = $(this).val();
+  switch (selected) {
+    case "Twitter":
+      console.log("case twitter")
+      $('#time').prop("disabled", true);
+      $('#time').val("Last Week");
+      $('#time').selectpicker('refresh');
+      break;
+    case "Google Trends":
+      $('#time').removeProp("disabled");
+      $("#time option").prop("selected", false);
+      $('#time').selectpicker('refresh');
+      break;
+    case "All":
+      $('#time').prop("disabled", true);
+      $('#time').val("Last Week");
+      $('#time').selectpicker('refresh');
+      break;
+  }
+});
+
+$('#export').change(function() { 
+  alert("Sorry, this functionality is not yet available -  we're working on it!");
+});
+

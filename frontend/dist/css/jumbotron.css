@@ -58,15 +58,15 @@ body {
 }
 
 .dropdown-toggle {
-	color:#fff;
+	background-color:#fff;
 }
 
 .navbar-fixed .navbar-header .navbar-toggle {
-	border-color:#fff !important;
+	border-color:#fff;
 }
 
 .navbar-fixed .navbar-header .icon-bar {
-	background-color:#fff !important;
+	background-color:#fff; 
 }
 
 @media (max-width: 768px) {
@@ -78,13 +78,13 @@ body {
 
 .navbar-fixed .navbar-nav .open .dropdown-menu {
   	background-color: #fff;
-    /*color:#3344ff;*/
+    color:#3344ff;
   }
 
 @media (max-width: 768px) {
 	.navbar-fixed .navbar-nav .open .dropdown-menu {
 		background-color: #fff;
-        color:#3344ff;
+    color:#3344ff;
 	}
 }
 /* Options Navbar */
@@ -112,7 +112,7 @@ body {
    top: 50px;
 }
   
-.status, .info, .waiting {
+.status, .info, .waiting, .login {
   font-size: 12px;
   top:30px;
   position: absolute;
@@ -127,7 +127,7 @@ body {
 #twitter-stream {
     overflow-y: scroll;
     overflow-x: hidden;
-    max-height: 500px;
+    max-height: 400px;
 }
 
 #twitter-heading  {
@@ -145,3 +145,26 @@ body {
     padding-left: 60%;
 }
 
+.dropdown {
+  margin-top:8px;
+}
+
+.navbar .navbar-nav {
+  display: inline-block;
+  float: none;
+  vertical-align: top;
+}
+
+.navbar .navbar-collapse {
+  text-align: center;
+}
+
+.searchbox, .search {
+  width: 100%;
+}
+
+@media (max-width: 800px) {
+  #graph {
+    width: 90vw;
+  }
+}

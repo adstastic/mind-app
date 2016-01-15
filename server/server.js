@@ -1,14 +1,17 @@
-var fs = require('fs'),
-    request = require('request'),
-    // mysql   = require('mysql'),
-    express = require('express'),
-    // sys = require('sys'),
-    exec = require('child_process').exec,
-    // path = require('path'),
-    sprintf = require("sprintf-js").sprintf,
-    // cookie = require('cookies.txt'),
-    Twit = require('twit');
-    
+var fs      = require('fs'),
+    exec    = require('child_process').exec,
+    Loki    = require('lokijs'),
+    Express = require('express'),
+    Twit    = require('twit'),
+    _       = require('underscore'),
+    Sprintf = require("sprintf-js").sprintf,
+    Request = require('request');
+
+process.on('uncaughtException', function (e) {
+  console.log(new Date().toISOString(), e.stack || e);
+  process.exit(1);
+});
+
 function puts(error, stdout, stderr) { console.log(stdout) }
 
 function check_command_line_arguments() {
@@ -44,7 +47,7 @@ var url = 'http://www.google.com/trends/fetchComponent?q=als,ice%20bucket%20chal
 
 function fetch() {
 	// fetch from data sources
-    request({
+    Request({
         url: url,
         json: true,
     }, function(error, response, body) {
@@ -152,7 +155,7 @@ function pretty_timestamp() {
         day = ('0' + d.getDay()).slice(-2),
         month = ('0' + d.getDay()+1).slice(-2), // js months are indexed from 0
         year = d.getFullYear();
-    var formatted_date = sprintf('%s-%s-%s.%s:%s:%s', day, month, year, hour, minute, second);
+    var formatted_date = Sprintf('%s-%s-%s.%s:%s:%s', day, month, year, hour, minute, second);
     return formatted_date;
 }
 
@@ -161,6 +164,7 @@ function wget(options, callback) {
     
     function execute(cmd, callback) {
         console.log('Executing: '+cmd);
+        try {
         exec(cmd, function (error, stdout, stderr) {
             console.log('stdout: ' + stdout);
             console.log('stderr: ' + stderr);
@@ -172,6 +176,10 @@ function wget(options, callback) {
                 callback(stdout);
             } 
         });
+        }
+        catch (e) {
+            console.error("wget > execute:",e);
+        }
     }
     
     if (options.query && options.date) {
@@ -184,7 +192,7 @@ function wget(options, callback) {
             if (options.filename) {
                 filename = options.filename;
             } else { // set filename with datetime and search params
-                filename = sprintf("%s-%s.%s.csv", query, options.date, pretty_timestamp());
+                filename = Sprintf("%s-%s.%s.csv", query, options.date, pretty_timestamp());
             }
             cmd = 'wget -x --load-cookies ./cookies.txt -O "'+filename.toString() +'" '+ URL;
         }
@@ -195,6 +203,7 @@ function wget(options, callback) {
 
 function search(string, keywords) {
     var found;
+    try {
     for (var i = 0; i < keywords.length; i++) {
         var keyword = keywords[i].toLowerCase();
         if (string.search(keyword) > -1) {
@@ -203,11 +212,15 @@ function search(string, keywords) {
         } 
         else found = false;
     }
+    }
+    catch (e) {
+        console.error("search:",e)
+    }
     return found;
 }   
 
 function process_tweet(tweet, search_array) {
-    console.time('process_tweet');
+    // console.time('process_tweet');
     if (search(tweet.text.toLowerCase(), search_array)) {
         var location = ((tweet.place.country) ? tweet.place.country : tweet.user.location);
         if (tweet.entities.hashtags) {
@@ -216,7 +229,7 @@ function process_tweet(tweet, search_array) {
             }
         }
         var tweet_data = { user: tweet.user.name, text : tweet.text, location : location }
-        console.timeEnd('process_tweet');
+        // console.timeEnd('process_tweet');
         return tweet_data;
     } else return null; 
 } 
@@ -228,7 +241,25 @@ function main() {
 
 main();
 
-var app = express();
+// var idbAdapter = new LokiIndexedAdapter('loki');
+var DB  = new Loki('./test.json');
+try {
+    var db_json = fs.readFileSync('./test.json', {
+        encoding: 'utf8'
+    });
+    DB.loadJSON(db_json);
+} catch (e) {
+    console.error("loki.loadDatabase:", e);
+    var date = new Date();
+    var dbpath = date.toISOString() + "_db.json";
+    DB = new Loki(dbpath);
+    console.log("created new DB: ", dbpath);
+}
+
+var TWITTER = DB.addCollection('twitter');
+var GOOGLE = DB.addCollection('google');
+
+var app = Express();
 var server = require('http').createServer(app);
 var io = require('socket.io')(server);
 // change the keys and secrets to environment variables later for security, set using command line when node instantiated or using export
@@ -239,28 +270,72 @@ var twitter = new Twit({
     access_token_secret : 'tqSIAHX6X9b8RnARVYahNtod3AWvf414dOPr57zqFx5aX'
 });
 
-twitter.get('search/tweets', 
-    {
-        q : '#mentalhealth',
-        since : 2007-01-01
-    },
-    function (twitter_err, data, response) {
-        var subset = data.statuses;
-        if (twitter_err) throw twitter_err;
-    // 	fs.writeFile('./twitter_test.json', JSON.stringify(data.statuses.slice(0,2), null, 4), function(fs_err) {
-    // 	    if (fs_err) throw fs_err;
-    //       	console.log("Saved JSON string");
-    //   	});
-      	for (var status in subset) {
-      	    var hashtags = subset[status].entities.hashtags;
-      	    for (var hashtag in hashtags) {
-      	        console.log(hashtags[hashtag].text);
-      	    }
-      	}
+function search_tweets(twitter, params, callback) {
+    try {
+        twitter.get('search/tweets', params,
+            function (twitter_err, data, response) {
+                var subset = data.statuses;
+                if (twitter_err) throw twitter_err;
+            // 	fs.writeFile('./twitter_test.json', JSON.stringify(data.statuses.slice(0,2), null, 4), function(fs_err) {
+            // 	    if (fs_err) throw fs_err;
+            //       	console.log("Saved JSON string");
+            //   	});
+                var tweets = [];
+              	for (var status in subset) {
+              	    var status = subset[status];
+              	    var status = { 
+              	        created_at  :   new Date(status.created_at).toISOString(),
+              	        date        :   new Date(status.created_at).getDate(),
+              	        id          :   status.id,
+              	        place       :   (status.place || status.user.location),
+              	        text        :   status.text,
+              	        hashtags    :   status.entities.hashtags
+              	    }
+              	    tweets.push(status);
+              	}
+              	var tweets_by_day_hour = _.chain(tweets)
+                    .groupBy(function(tweet){
+                        var date = new Date(tweet.created_at); 
+                        return date.getDate();
+                    })
+                    .indexBy(function(tweets_by_day) {
+                        var tweet = _.sample(tweets_by_day);
+                        return tweet.date;
+                    })
+                    .map(function(tweets_by_day) { 
+                        return _.groupBy(tweets_by_day, function(tweet) {
+                            var date = new Date(tweet.created_at); 
+                            return date.getHours();
+                        });
+                    })
+                    .value();
+                    
+                // var tweets_by_day = _.groupBy(function(tweet){
+                //     var date = new Date(tweet.created_at); 
+                //     return date.getDate();
+                // });
+                
+                // _.each(tweets_by_day, function(tweets, index) {
+                //     console.log(tweets);
+                //     _.groupBy(tweets, function(tweet) {
+                //         console.log(tweet);
+                //         // var date = new Date(tweet.created_at); 
+                //         // return date.getDate();
+                //     })
+                // });
+                
+                // fs.writeFile('./twitter-search.json', JSON.stringify(tweets_by_day_hour, null, 2));
+                callback(tweets_by_day_hour);     
+            }
+        );
     }
-);
+    catch (e) {
+        console.error("twitter.get search/tweets:",e)
+        return null;
+    }
+}
 
-var search_terms = "mindcharity,mentalhealth,Abuse,Addiction,dependency,Advocacy,Aftercare,Anger,Antidepressants,Antidepressants,Antipsychotics,Anxiety,panic attacks,Arts therapies,Benefits,Bereavement,Bipolar disorder,Body dysmorphic disorder,Borderline personality disorder,BPD,Carers,coping,Clinical Negligence,Cognitive behavioural therapy,CBT,Community care,aftercare,mental health,social care,Complementary therapy,alternative therapy,Consent to treatment,CRHT,Crisis services,Debt and mental health,Depression,Dialectical behaviour therapy,Disability discrimination,Discharge from hospital,Discrimination at work,Dissociative disorders,Driving,Drugs - street drugs & alcohol,Eating problems,Ecotherapy,Electroconvulsive therapy,Financial help,Hearing voices,Hoarding,Holidays and respite care,Housing,Human Rights Act 1998,Hypomania and mania,IMHAs (England),IMHAs (Wales),Insurance cover and mental health,Learning disability support,LGBT mental health,Lithium and other mood stabilisers,Loneliness,Medication,Medication - drugs A-Z,Medication - stopping or coming off,Mental Capacity Act 2005,Mental Health Act 1983,Mental health and the courts,Mental health and the police,Mental health problems,Mindfulness,Money and mental health,Nearest relative,Neurosurgery for mental disorder,Obsessive-compulsive disorder,ocd,Online safety and support,Panic attacks,Paranoia,Parenting with a mental health problem,Peer support,Personal budgets,Personal information,Personality disorders,Phobias,Physical activity, sport and exercise,Postnatal depression,Post-traumatic stress disorder,ptsd,Psychosis,Relaxation,Schizoaffective disorder,Schizophrenia,Seasonal affective disorder,Sectioning,Seeking help for a mental health problem,Self-esteem,Self-harm,Sleep problems,Sleep problems,Sleeping pills,tranquillisers,St John's wort,mental health statistics,mental health facts,Stress,Student life,Suicidal feelings,Suicide,Talking treatments,Tardive dyskinesia,Wellbeing,emergency services";
+var search_terms = "mindcharity,mentalhealth,Abuse,Addiction,dependency,Advocacy,Aftercare,Anger,Antidepressants,Antidepressants,Antipsychotics,Anxiety,panic attacks,Arts therapies,Benefits,Bereavement,Bipolar disorder,Body dysmorphic disorder,Borderline personality disorder,BPD,Carers,coping,Clinical Negligence,Cognitive behavioural therapy,CBT,Community care,aftercare,mental health,social care,Complementary therapy,alternative therapy,Consent to treatment,CRHT,Crisis services,Debt and mental health,Depression,Dialectical behaviour therapy,Disability discrimination,Discharge from hospital,Discrimination at work,Dissociative disorders,Driving,Drugs - street drugs & alcohol,Eating problems,Ecotherapy,Electroconvulsive therapy,Financial help,Hearing voices,Hoarding,Holidays and respite care,Housing,Human Rights Act 1998,Hypomania and mania,IMHAs (England),IMHAs (Wales),Insurance cover and mental health,Learning disability support,LGBT mental health,Lithium and other mood stabilisers,Loneliness,Medication,Medication - drugs A-Z,Medication - stopping or coming off,Mental Capacity Act 2005,Mental Health Act 1983,Mental health and the courts,Mental health and the police,Mental health problems,Mindfulness,Money and mental health,Nearest relative,Neurosurgery for mental disorder,Obsessive-compulsive disorder,ocd,Online safety and support,Panic attacks,Paranoia,Parenting with a mental health problem,Peer support,Personal budgets,Personal information,Personality disorders,Phobias,Physical activity,Postnatal depression,Post-traumatic stress disorder,ptsd,Psychosis,Relaxation,Schizoaffective disorder,Schizophrenia,Seasonal affective disorder,Sectioning,Seeking help for a mental health problem,Self-esteem,Self-harm,Sleep problems,Sleep problems,Sleeping pills,tranquillisers,St John's wort,mental health statistics,mental health facts,Stress,Student life,Suicidal feelings,Suicide,Talking treatments,Tardive dyskinesia,Wellbeing,emergency services";
 
 var search_array = search_terms.split(',');
 
@@ -270,16 +345,25 @@ var uk = ['-9.05', '48.77', '2.19', '58.88'];
 
 var stream_location = twitter.stream('statuses/filter', { /*rack: search_terms,*/locations: uk/*, language : 'en'*/ })  
 var count_location = 0;
+var count = 0;
 
+try {
 stream_location.on('tweet', function(tweet) {
+    process.stdout.write((count++).toString()+" ");
     if (process_tweet(tweet, search_array)) {
+        TWITTER.insert(tweet);
+        DB.saveDatabase();
         var tweet_data = process_tweet(tweet, search_array);
+        process.stdout.write('\n');
         console.log(count_location++);
         console.log(tweet_data);
-        io.sockets.emit('twitter', tweet_data);
+        io.sockets.emit('twitter:statuses/filter', tweet_data);
     };
 });
-
+}
+catch (e) {
+    console.error("twitter.stream statuses/filter:",e)
+}
 stream_location.on('error', function(error) {
     console.log(error);
 });
@@ -290,7 +374,7 @@ app.use(function(req, res, next) {
   next();
 });
 
-app.use('/', express.static(__dirname + '/../frontend'));
+app.use('/', Express.static(__dirname + '/../frontend'));
 
 io.on('connection', function(client) {
     console.log('Client '+ client.id + ' connected.');
@@ -330,13 +414,40 @@ io.on('connection', function(client) {
                 });
                 break;
             case 'Twitter':
-                console.log('Getting data from Twitter');
-                var response = 0; /* get twitter data*/
+                client.emit('alert', "Sorry! We are still in the process of integrating Twitter.");
+                // do not change any of the param keys, these are sent directly to twitter
+                var params = { 
+                    q       : data.query,
+                    lang    : 'en',
+                    geocode : '54.26522,-3.95507,246mi',
+                    count   : 100 
+                };
+                search_tweets(twitter, params, function(tweets) {
+                    client.emit('twitter:search/tweets', tweets);
+                });
                 break;
-            case 'instagram':
-                console.log('Getting data from Instagram');
-                var response = 0; /* get instagram data*/
-                break;
+            case 'All':
+                client.emit('alert', "Sorry! We are still in the process of integrating Twitter, but here's the Google data!");
+                console.log('Getting data from Google');
+                var wget_options = {
+                    query   : data.query,
+                    date    : data.date,
+                    print   : true
+                };
+                var csv_options = {
+                    json : false,
+                    date : data.date
+                };
+                wget(wget_options, function(results) {
+                    var csv_data = extract_csv_data(results, csv_options)
+                    console.log(csv_data);
+                    var emit_data = {
+                        data : csv_data, 
+                        title : data.query,
+                        date : data.date
+                    };
+                    client.emit('results', emit_data);
+                });
         }
     });
 });

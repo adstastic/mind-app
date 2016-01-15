@@ -19,7 +19,7 @@
     <link href="./dist/css/jumbotron.css" rel="stylesheet">
     
     <!--loading animations from loading.io-->
-    <link href="./dist/css/ripple.css" rel="stylesheet">
+    <!--<link href="./dist/css/ripple.css" rel="stylesheet">-->
     <link href="./dist/css/rolling.css" rel="stylesheet">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-select/1.9.3/css/bootstrap-select.min.css">
@@ -50,7 +50,7 @@
             </button>
           </div>
           <div id="navbar" class="navbar-collapse collapse">
-            <ul class="nav navbar-nav navbar-left">
+            <ul class="nav navbar-nav">
               <li class="dropdown">
                 <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Data Source <span class="caret"></span></a>-->
                 <select id="data" class="selectpicker" title="Data Source">
@@ -73,7 +73,7 @@
             </ul>  
             <ul class="nav navbar-nav">
             <form class="navbar-form" role="search">
-            <div class="input-group">            
+            <div id="searchbox" class="input-group">            
               <input id="search" type="text" class="form-control" placeholder="Search">
               <span class="input-group-btn">
                 <button class="btn btn-default" id="submit" type="button"><span class="glyphicon glyphicon-search"></span></button>
@@ -81,22 +81,22 @@
             </div>
             </form>
             </ul> 
-            <ul class="nav navbar-nav navbar-right">
+            <ul class="nav navbar-nav">
               <li class="dropdown">
                 <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Download <span class="glyphicon glyphicon-download-alt"></span></a>-->
-                <select class="selectpicker" title="Title">
+                <select id="export" class="selectpicker" title="Export">
                   <option>CSV</option>
                   <option>PDF</option>
                 </select>
               </li>
-              <li class="dropdown">
+              <!--<li class="dropdown">-->
                 <!--<a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"> Share <span class="glyphicon glyphicon-share"></span></a>-->
-                <select class="selectpicker" title="Share">
-                  <option>Twitter</option>Twitter
-                  <option>Facebook</option>
-                  <option>LinkedIn</option>
-                </select>
-              </li>
+              <!--  <select id="share" class="selectpicker" title="Share">-->
+              <!--    <option>Twitter</option>Twitter-->
+              <!--    <option>Facebook</option>-->
+              <!--    <option>LinkedIn</option>-->
+              <!--  </select>-->
+              <!--</li>-->
             </ul>
          
           </div><!--/.nav-collapse -->
@@ -133,22 +133,23 @@
         <div id="google" class="col-md-6">
           <div class="row">
             <div id="google-heading">
-              <div class="col-xs-6">
+              <div class="col-xs-5">
                 <h2>Google Trends</h2>
               </div>
-              <div class="col-xs-3">
+              <div class="col-xs-4">
                 <span class="label label-success status">Connected</span>
+              </div>
+              <div class="col-xs-3">
+                <span class="label label-default login"></span>
               </div>
             </div>
             </div>
           <div id="tout" class='uil-rolling-css' style='transform:scale(0.6);'><div><div></div><div></div></div></div>
           <div id="graph" style="margin:auto"></div>
-          <p><a class="btn btn-default" href="#" role="button">View details »</a></p>
+          <!--<p><a class="btn btn-default" href="#" role="button">View details »</a></p>-->
        </div>
       </div>
-
       <hr>
-
       <footer>
          <div class="container text-center">
         <p>© 2016 Mind </p>
@@ -161,7 +162,7 @@
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     
-     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
+    <script type="text/javascript" src="https://www.google.com/jsapi"></script>
     <script type="text/javascript">
       /* global google*/
       google.load('visualization', '1', { packages: ['corechart', 'controls'] });
@@ -195,7 +196,18 @@
                 hAxis: { format: date_dict[data.date] } 
              }
           });
+          
+          // google.visualization.events.addListener(chart, 'ready', function () {
+          //   console.log(chart.getImageURI());
+          // });
+          
           chart.draw();
+          // $(window).resize(function() {
+          //   if ($(window).width() < 800) {
+          //     chart.options.width = $(window).width()*0.9;
+          //     chart.draw();
+          //   }
+          // });
       }
     // google.setOnLoadCallback(drawVisualization)
     </script>

@@ -5,3 +5,5 @@ error: Could not read .foreverignore file.
 error: ENOENT: no such file or directory, open '.foreverignore'
 error: Forever detected script was killed by signal: SIGKILL
 error: Script restart attempt #1
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #2

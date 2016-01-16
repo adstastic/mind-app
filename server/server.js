@@ -6,8 +6,6 @@ var fs      = require('fs'),
     _       = require('underscore'),
     Sprintf = require("sprintf-js").sprintf,
     Request = require('request'),
-    server = require('http').createServer(app),
-    io = require('socket.io')(server),
     q = require('q');
 
 process.on('uncaughtException', function (e) {
@@ -311,7 +309,9 @@ app.use(function(req, res, next) {
 
 app.use('/', Express.static(__dirname + '/../app'));
 
-var DB  = new Loki('./db/mindapp_db.json');
+var server = require('http').createServer(app),
+    io = require('socket.io')(server),
+    DB  = new Loki('./db/mindapp_db.json');
 try {
     var db_json = fs.readFileSync('./db/mindapp_db.json', {
         encoding: 'utf8'

@@ -11,8 +11,18 @@ $(function() {
     timer : 3000
   });
   
-  var date = new Date();
-  var date_string = date.getDate() + "/" + date.getMonth()+1 + "/" + date.getFullYear() + " " + date.getHours() + ":" + date.getMinutes();
+  var day_dict = {
+    0 : "Sunday",
+    1 : "Monday",
+    2 : "Tuesday",
+    3 : "Wednesday",
+    4 : "Thursday",
+    5 : "Friday",
+    6 : "Saturday"
+  };
+  
+  var ts = pretty_timestamp(new Date().toISOString());
+  var date_string = day_dict[ts.day] + " " + ts.date + "/" + ts.month + "/" + ts.year + " " + ts.hour + ":" + ts.minute;
   $('#google').find('.login').html('Page Loaded at ' + date_string);
   graph_loading();
   setInterval(function() {
@@ -32,6 +42,21 @@ $(function() {
       }
   });
   
+  function pretty_timestamp(iso_string) {
+    var d = new Date(iso_string);
+    var formatted_date = {
+      second  : ('0' + d.getSeconds()).slice(-2),
+      minute  : ('0' + d.getMinutes()).slice(-2),
+      hour    : ('0' + d.getHours()).slice(-2),
+      day     : d.getDay(),
+      date    : ('0' + d.getDate()).slice(-2),
+      month   : ('0' + d.getMonth()+1).slice(-2), // js months are indexed from 0
+      year    : d.getFullYear()
+    }
+    // var formatted_date = Sprintf('%s-%s-%s.%s:%s:%s', day, month, year, hour, minute, second);
+    return formatted_date;
+  }
+
   /*global drawChart*/
   function drawChart(res, div, height, source) {
     
@@ -137,7 +162,7 @@ $(function() {
         data  = $('#data').val(),
         time  = $('#time').val();
       
-    if (query.length > 0 && data.length > 0 && time.length > 0) {
+    if (query.trim().length > 0 && data.trim().length > 0 && time.trim().length > 0) {
       graph_loading(which_shown('#graph', '#graphs'));
     
       var params = {
@@ -173,6 +198,14 @@ $(function() {
     socket.emit('search', params_onload);
   });
   
+  socket.on('reset', function() {
+    var params_onload = {
+          query : 'mind',
+          data  : 'Google Trends',
+          date  : 'Last Hour'
+        };
+    socket.emit('search', params_onload);
+  })
   socket.on('messages', function(data) {
     console.log(data);
   });
@@ -194,9 +227,12 @@ $(function() {
     console.log(data);
     if(data.text.length > 0) {
       tweets++;
-      var user = "<span class=\"label label-pill label-primary\">" + data.user +"</span>";
-      var location = "<span class=\"label label-pill label-success\">" + data.location +"</span>";
-      $("#twitter-stream ul").prepend("<li class=\"list-group-item\">" + user + " from " + location + "<br>" + data.text + "</li>");
+      var user_label = "<span class=\"label label-pill label-primary\">" + data.user +"</span>",
+          location_label = "<span class=\"label label-pill label-success\">" + data.location +"</span>",
+          ts = pretty_timestamp(data.created_at),
+          date_string = day_dict[ts.day] + " " + ts.date + "/" + ts.month + "/" + ts.year + " " + ts.hour + ":" + ts.minute,
+          date_label = "<span class=\"label label-pill label-default\">" + date_string +"</span>";
+      $("#twitter-stream ul").prepend("<li class=\"list-group-item\">" + user_label + " from " + location_label + "<br>" + data.text + "<br>" + date_label + "</li>");
       $("#twitter-stream li").first().effect( "highlight", {color:"#194784"}, 2000 ); 
       var tweets = $('#twitter').find('.info').html();
       $('#twitter').find('.info').html(++tweets);
@@ -296,10 +332,14 @@ $(function() {
   // takes text from keyword submit box and sends to server on keyword submit button click
   $('#keyword_submit').click(function() {
     var kw = $('#keyword_add input').val();
-    console.log('keyword added: '+kw);
-    socket.emit('keyword_add', kw);
-    $('#keyword_add').hide();
-    $('#keyword_view').show();
+    if (kw.trim().length > 0) {
+      console.log('keyword added: '+kw);
+      socket.emit('keyword_add', kw);
+      $('#keyword_add').hide();
+      $('#keyword_view').show();
+    } else {
+      alert("Please enter a keyword to add!");
+    }
   });
   
   // disables time dropdown and selects 'Last week' if 'Twitter' or 'All' are selected in data dropdown

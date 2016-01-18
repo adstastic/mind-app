@@ -8,3 +8,9 @@ extract_csv_data: Cannot read property 'length' of null
 extract_csv_data: Cannot read property 'length' of null
 extract_csv_data: Invalid time value
 extract_csv_data: Invalid time value
+DB.saveDatabase [TypeError: Document needs to be an object]
+DB.saveDatabase [TypeError: Document needs to be an object]
+DB.saveDatabase [TypeError: Document needs to be an object]
+DB.saveDatabase [TypeError: Document needs to be an object]
+DB.saveDatabase [TypeError: Document needs to be an object]
+DB.saveDatabase [TypeError: Document needs to be an object]

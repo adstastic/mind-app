@@ -7,3 +7,53 @@ error: Forever detected script was killed by signal: SIGKILL
 error: Script restart attempt #1
 error: Forever detected script was killed by signal: SIGKILL
 error: Script restart attempt #2
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #3
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #4
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #5
+error: Forever detected script exited with code: 1
+error: Script restart attempt #6
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #7
+error: Forever detected script exited with code: 1
+error: Script restart attempt #8
+error: Forever detected script exited with code: 1
+error: Script restart attempt #9
+error: Forever detected script was killed by signal: SIGKILL
+events.js:141
+      throw er; // Unhandled 'error' event
+      ^
+
+Error: ENOENT: no such file or directory, open 'logs/out.log'
+    at Error (native)
+error: Could not read .foreverignore file.
+error: ENOENT: no such file or directory, open '.foreverignore'
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #1
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #2
+error: Forever detected script exited with code: 1
+error: Script restart attempt #3
+error: Forever detected script exited with code: 1
+error: Script restart attempt #4
+error: Forever detected script exited with code: 1
+error: Script restart attempt #5
+error: Forever detected script exited with code: 1
+error: Script restart attempt #6
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #7
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #8
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #9
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #10
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #11
+error: Forever detected script was killed by signal: SIGKILL
+error: Script restart attempt #12
+error: Forever detected script was killed by signal: SIGKILL
+error: Could not read .foreverignore file.
+error: ENOENT: no such file or directory, open '.foreverignore'

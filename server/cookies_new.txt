@@ -1,0 +1,19 @@
+# HTTP Cookie File for domains related to google.co.uk.
+# Downloaded with cookies.txt Chrome Extension (https://chrome.google.com/webstore/detail/njabckikapfpffapmjgojcnbfjonfjfg)
+# Example:  wget -x --load-cookies cookies.txt https://www.google.co.uk/trends/explore#q=mindcharity
+#
+.google.co.uk	TRUE	/trends/	FALSE	1453107810	__utmt	1
+.google.co.uk	TRUE	/trends/	FALSE	1516179210	__utma	174189748.1310709412.1453107210.1453107210.1453107210.1
+.google.co.uk	TRUE	/trends/	FALSE	1453109010	__utmb	174189748.1.10.1453107210
+.google.co.uk	TRUE	/trends/	FALSE	0	__utmc	174189748
+.google.co.uk	TRUE	/trends/	FALSE	1468875210	__utmz	174189748.1453107210.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none)
+www.google.co.uk	FALSE	/trends	TRUE	1484643204.121229	I4SUserLocale	en_US
+www.google.co.uk	FALSE	/	FALSE	1453107714	DV	AqBvrfIid84SpH3lGaNxj3RD3N2npAI
+.google.co.uk	TRUE	/	FALSE	1516179129.554892	SID	DQAAAP8AAADgojQHtoLOzZt78aB9SPHgIIzvbaeRWwSuLB-B2ZBPWHQwk7Noq2s7BJktD3tPArruw_iGcahg8yYx0lEiqaFjyRNolrJm_429TwMX95tqGTxX71yJAcNKFvcBOgflwXpfF3svQzbFNQhF3oh6-Y1XWmH8GHAcm2PwI31Q4Nx1oVh807BCvjHVfoJqh1Wzj2fj0a4wP3TpS5SS9TVHIlOwWApYv2m9I8qfw_IF6HkBCIkeL2jWLF_uJY25zh8M_Qfh3_RzLtru4hlKi2hk8JlwMRvKZjckbxCugE0z2EESbZK4T3kVRSacF7x7533Is30lTM-nt8kd1wB-JVVplQQn
+.google.co.uk	TRUE	/	FALSE	1516179129.554975	HSID	Ale4hAMJgtFDagvad
+.google.co.uk	TRUE	/	TRUE	1516179129.555056	SSID	ANz0EYU3lrbOynVL4
+.google.co.uk	TRUE	/	FALSE	1516179129.555137	APISID	nbvTnBdY6aMNPp00/ADTY5mkTltykgFUB_
+.google.co.uk	TRUE	/	TRUE	1516179129.555216	SAPISID	j0Z6uPpr-RD-gEze/Az6oDmx8gMtnpj0EV
+.google.co.uk	TRUE	/	FALSE	2146723199.555297	CONSENT	YES+GB.en+20151207-13-0
+.google.co.uk	TRUE	/	TRUE	0	S	izeitgeist-ad-metrics=Yboueph4u1A
+.google.co.uk	TRUE	/	FALSE	1468918498.591054	NID	75=Amqv5Koo5jQ-gooQIMq0y7qbSYSBiYlv-C87KbnqqvEVTWvUVs0ejBPhgNGhzldogJP8MUbp8GxSqt7JW6U8rHtr9fZhbdlDjtufXx5m5hmpx3EwNLD56hUukjzsXbiwt1q_UliyRta25k5e2sRBaGQZa7uLzhFgRq-Ve8FNJNQwXA

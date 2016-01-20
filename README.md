@@ -15,7 +15,7 @@ Mind-app gets data from Twitter using the API and accesses it at two endpoints:
 * Node - server
 * Express - HTTP server
 * Socket.io - communication with client
-* Lodash - advanced utility functions
+* Underscore - advanced utility functions
 * LokiJS - in-memory JSON database
 * Twit - Twitter API wrapper
 
@@ -31,7 +31,7 @@ Mind-app gets data from Twitter using the API and accesses it at two endpoints:
 
 ## Terminology
 
-This guide is meant to be used by anyone with knowledge of how to enter text using a keyboard and reasonably navigate the operating system they use. Thus, if you are an power user/system administrator/developer, please keep this in mind as you read the guide.
+*Note: This guide is for a non-technical user. You are not required to be an advanced user to follow this guide.*
 
 In this guide I will often use the word **shell**.  
 If you are on Windows, this means **command prompt**.   
@@ -69,26 +69,31 @@ The structure of the code is:
 
 ```
 ./
-+-- server/
-    +-- cookies.txt
-    +-- keywords.txt
-    +-- mindapp.json
-    +-- package.json
-    +-- server.js
-    +-- data/
-    +-- db/
-    +-- logs/
-    +-- node_modules/
-    +-- test/
-+-- app/
-    +-- media/
-    +-- css/
-    +-- js/
-    +-- fonts/
-    +-- index.html
-+--README.md
++-- server/                 # Server-side code
+    +-- cookies.txt         # wget cookies
+    +-- keywords.txt        # Keyword list
+    +-- mindapp.json        # Configuration file for forever to start and run server
+    +-- package.json        # Configuration file for npm to build project 
+    +-- twitter.js          # Twitter API wrapper
+    +-- google_trends.js    # Custom Google Trends API
+    +-- utilities.js        # Utility functions
+    +-- server.js           # Main server script
+    +-- data/               # Downloaded CSV files of Google Trends search data
+    +-- db/                 # Production and Testing JSON databases 
+    +-- logs/               # Log folder
+        +-- out.log         # node output (console.log, stdout)
+        +-- err.log         # node errors (console.error, stderr)
+    +-- node_modules/       # Modules installed by npm
++-- app/                    # Client-side code
+    +-- css/                # Style sheets
+    +-- js/                 # Scripts run by page
+        +-- controller.js   # Dashboard controller and main application logic
+        +-- renderer.js     # Rendering functions
+    +-- fonts/              # Fonts
+    +-- index.html          # App landing page
++--README.md                # User guide and documentation
 ```
-where `.` is the folder containing all the code (and this `README`).  
+where `./` is the folder containing all the code (and this `README`).  
 
 The command to start the server is 
 
@@ -211,7 +216,6 @@ Run
 	info:    No forever processes running
 	```
 	Run `cd ./server` then `forever start mindapp.json`
-	```
 	which should output
 	
 	```

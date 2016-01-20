@@ -78,7 +78,6 @@ The structure of the code is:
     +-- google_trends.js    # Custom Google Trends API
     +-- utilities.js        # Utility functions
     +-- server.js           # Main server script
-    +-- data/               # Downloaded CSV files of Google Trends search data
     +-- db/                 # Production and Testing JSON databases 
     +-- logs/               # Log folder
         +-- out.log         # node output (console.log, stdout)
@@ -89,7 +88,6 @@ The structure of the code is:
     +-- js/                 # Scripts run by page
         +-- controller.js   # Dashboard controller and main application logic
         +-- renderer.js     # Rendering functions
-    +-- fonts/              # Fonts
     +-- index.html          # App landing page
 +--README.md                # User guide and documentation
 ```
@@ -122,6 +120,7 @@ localhost:3000
 ```
 
 ## Google Trends Authentication
+
 `cookies.txt` contains cookies to access Google Trends and download CSV data. The cookies are authentication parameters passed with a web request that allows Google Trends to recognise a Google user has logged in and is trying to access the page. Without a Google user, there would be no Google authentication cookies so there is a Gmail account for this app which was used to get the cookies currently in use. The credentials for it are:
 
 >username: "mind.app.0@gmail.com"  
@@ -132,6 +131,9 @@ localhost:3000
 The cookies have long expiry dates (the earliest being 2017) but if the Google charts are not loading, it is most likely an authentication problem and the cookies need to be reset. To do so, you will need **Google Chrome** with an extension called [cookies.txt](https://chrome.google.com/webstore/detail/cookiestxt/njabckikapfpffapmjgojcnbfjonfjfg?hl=en).
 
 ### Updating the cookies
+
+Default configuration is to use cURL to get CSV data. Modifying the cookies for cURL will require you to go into the source. Fortunately there is an easier way: to use wget.
+To change the method used, open `./server/mindapp.json` and edit the `option` property. It is set to "curl"- make sure to change this to "wget" of the cookies expire or the server will continue using cURL and the instructions below will have no effect.
 
 1. If there is already a `cookies.txt` in the app folder (*which there should be*), rename it to `cookies.old.txt` (*or something similar*) so it can easily be changed back in case something goes wrong in the cookies update process.
 2. Go to [Google Trends](https://chrome.google.com/webstore/detail/cookiestxt/njabckikapfpffapmjgojcnbfjonfjfg?hl=en)
